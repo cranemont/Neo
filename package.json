@@ -1,0 +1,24 @@
+{
+  "name": "Neo",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node --no-warnings=ExperimentalWarning --experimental-specifier-resolution=node --loader ts-node/esm src/main.ts",
+    "format": "biome format --write ./",
+    "lint": "biome check --write ./"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@playwright/test": "^1.49.1"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "1.9.4",
+    "@types/node": "^22.10.2",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.7.2"
+  }
+}
