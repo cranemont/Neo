@@ -36,6 +36,7 @@ export class LLMClient {
         }),
         model: 'claude-3-7-sonnet-latest',
       });
+      console.log('---🤖---');
       console.log(result);
 
       return result;
