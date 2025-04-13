@@ -108,25 +108,42 @@ export class Context {
     return { page };
   }
 
+  extractInteractiveLines(snapshot: string, excludeRoles: string[] = ['paragraph', 'img', 'text']) {
+    const lines = snapshot.split('\n');
+
+    return lines.filter(line => {
+      return !excludeRoles.some(role => line.includes(role))
+    }).join('\n');
+  }
+
   async allFramesSnapshot() {
     const page = this.existingPage();
     const visibleFrames = await page.locator('iframe').filter({ visible: true }).all();
-    this._lastSnapshotFrames = visibleFrames.map((frame) => frame.contentFrame());
+    
+    this._lastSnapshotFrames = visibleFrames.map(frame => frame.contentFrame());
+    
+    const mainSnapshot = await page.locator('html').ariaSnapshot({ ref: true });
+    // 메인 페이지 스냅샷에서 상호작용 가능한 요소만 추출
+    const mainInteractiveLines = this.extractInteractiveLines(mainSnapshot);
 
-    const snapshots = await Promise.all([
-      page.locator('html').ariaSnapshot({ ref: true }),
-      ...this._lastSnapshotFrames.map(async (frame, index) => {
-        const snapshot = await frame.locator('html').ariaSnapshot({ ref: true });
-        const args = [];
-        const src = await frame.owner().getAttribute('src');
-        if (src) args.push(`src=${src}`);
-        const name = await frame.owner().getAttribute('name');
-        if (name) args.push(`name=${name}`);
-        return `\n# iframe ${args.join(' ')}\n` + snapshot.replaceAll('[ref=', `[ref=f${index}`);
-      }),
-    ]);
+    const iframeSnapshots = await Promise.all(
+      this._lastSnapshotFrames.map(async (frame, index) => {
+        const [snapshot, src, name] = await Promise.all([
+          frame.locator('html').ariaSnapshot({ ref: true }),
+          frame.owner().getAttribute('src'),
+          frame.owner().getAttribute('name')
+        ]);
 
-    return snapshots.join('\n');
+        const metadata = [
+          src && `src=${src}`,
+          name && `name=${name}`
+        ].filter(Boolean).join(' ');
+
+        return `\n# iframe ${metadata}\n${snapshot.replaceAll('[ref=', `[ref=f${index}`)}`;
+      })
+    );
+
+    return [mainInteractiveLines, ...iframeSnapshots].join('\n');
   }
 
   refLocator(ref: string): playwright.Locator {
