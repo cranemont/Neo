@@ -1,0 +1,56 @@
+{
+  "id": "CartB2B",
+  "scenario": "B2B 계정으로 장바구니에 접근한다.",
+  "baseUrl": "https://inflearn.com/cart",
+  "preconditions": ["B2BLogin"],
+  "actions": [
+    {
+      "toolName": "playwright_navigate",
+      "parameters": {
+        "url": "https://inflearn.com/cart"
+      },
+      "description": "장바구니 페이지로 이동"
+    },
+    {
+      "toolName": "playwright_expect_response",
+      "parameters": {
+        "url": "**/api/carts",
+        "id": "carts"
+      },
+      "description": "장바구니 API 응답 대기"
+    },
+    {
+      "toolName": "playwright_hover",
+      "parameters": {
+        "selector": ".cart-item:first-child"
+      },
+      "description": "첫 번째 장바구니 아이템에 마우스 오버"
+    },
+    {
+      "toolName": "playwright_screenshot",
+      "parameters": {
+        "name": "cart-hover",
+        "fullPage": true
+      },
+      "description": "장바구니 페이지 전체 스크린샷"
+    }
+  ],
+  "assertions": [
+    {
+      "toolName": "playwright_assert_response",
+      "parameters": {
+        "id": "carts"
+      },
+      "description": "장바구니 API 응답 확인"
+    },
+    {
+      "toolName": "playwright_count",
+      "parameters": {
+        "selector": ".cart-items",
+        "count": "> 0"
+      },
+      "description": "장바구니 아이템이 1개 이상 존재하는지 확인"
+    }
+  ],
+  "createdAt": "2024-03-11T00:00:00.000Z"
+} 

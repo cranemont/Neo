@@ -1,0 +1,22 @@
+{
+  "name": "test-runner",
+  "version": "1.0.0",
+  "description": "Playwright test scenario converter",
+  "main": "dist/cli.js",
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/cli.js",
+    "dev": "ts-node src/cli.ts",
+    "convert": "ts-node src/cli.ts",
+    "test": "playwright test",
+    "test:ui": "playwright test --ui-port=9222"
+  },
+  "dependencies": {
+    "@playwright/test": "^1.42.1"
+  },
+  "devDependencies": {
+    "@types/node": "^20.17.30",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.3.3"
+  }
+}

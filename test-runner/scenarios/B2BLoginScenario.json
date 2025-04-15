@@ -1,0 +1,70 @@
+{
+  "id": "B2BLogin",
+  "scenario": "B2B 계정으로 로그인한다.",
+  "baseUrl": "https://inflearn.com",
+  "preconditions": [],
+  "actions": [
+    {
+      "toolName": "playwright_navigate",
+      "parameters": {
+        "url": "https://inflearn.com"
+      },
+      "description": "홈페이지로 이동"
+    },
+    {
+      "toolName": "playwright_click",
+      "parameters": {
+        "selector": "#header .login-button"
+      },
+      "description": "로그인 버튼 클릭"
+    },
+    {
+      "toolName": "playwright_fill",
+      "parameters": {
+        "selector": "#email",
+        "value": "test@example.com"
+      },
+      "description": "이메일 입력"
+    },
+    {
+      "toolName": "playwright_fill",
+      "parameters": {
+        "selector": "#password",
+        "value": "password123"
+      },
+      "description": "비밀번호 입력"
+    },
+    {
+      "toolName": "playwright_click",
+      "parameters": {
+        "selector": "#submit-login"
+      },
+      "description": "로그인 제출"
+    },
+    {
+      "toolName": "playwright_expect_response",
+      "parameters": {
+        "url": "**/api/auth/login",
+        "id": "login"
+      },
+      "description": "로그인 API 응답 대기"
+    }
+  ],
+  "assertions": [
+    {
+      "toolName": "playwright_assert_response",
+      "parameters": {
+        "id": "login"
+      },
+      "description": "로그인 API 응답 확인"
+    },
+    {
+      "toolName": "playwright_url",
+      "parameters": {
+        "url": "/dashboard"
+      },
+      "description": "대시보드 페이지로 이동 확인"
+    }
+  ],
+  "createdAt": "2024-03-11T00:00:00.000Z"
+} 
