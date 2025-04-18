@@ -7,7 +7,7 @@
   "scripts": {
     "format": "biome format --write ./",
     "lint": "biome check --write ./",
-    "start": "tsx src/main.ts"
+    "start": "tsx src/poc/main.ts"
   },
   "keywords": [],
   "author": "",

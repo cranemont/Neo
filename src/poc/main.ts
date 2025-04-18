@@ -75,6 +75,7 @@ function filterSnapshotFromText(text) {
       const endIndex = endMatch.index + endMatch[0].length;
       // 스냅샷 부분을 제거하고 간단한 메시지로 대체
       result =
+        // biome-ignore lint/style/useTemplate: <explanation>
         result.substring(0, startIndex) +
         '- Page Snapshot: [PAST_SNAPSHOT_REMOVED]\n' +
         result.substring(startIndex + afterStart.substring(0, endIndex).length);
