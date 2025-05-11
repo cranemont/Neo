@@ -1,0 +1,19 @@
+{
+  "name": "mcp-server",
+  "version": "1.0.0",
+  "description": "MCP Server",
+  "main": "server.js",
+  "type": "module",
+  "scripts": {
+    "build": "tsc && cp mcp-fix.js dist/",
+    "start": "node dist/server.js"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "1.10.2",
+    "@playwright/mcp": "^0.0.22"
+  },
+  "devDependencies": {
+    "@types/node": "^22.15.3",
+    "typescript": "^5.8.3"
+  }
+}
