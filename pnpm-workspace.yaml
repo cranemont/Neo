@@ -1,0 +1,3 @@
+packages:
+  - 'src/mcp-client'
+  - 'src/mcp-server'

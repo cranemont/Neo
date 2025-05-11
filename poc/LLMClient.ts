@@ -1,8 +1,8 @@
 import * as process from 'node:process';
 import Anthropic from '@anthropic-ai/sdk';
 import type { TextBlock } from '@anthropic-ai/sdk/resources/messages/messages';
-import type { MessageParam } from '@anthropic-ai/sdk/src/resources/messages/messages';
-import type { Tool } from './mcp/tools/tool';
+import type { MessageParam } from '@anthropic-ai/sdk/src/resources/messages/messages.js';
+import type { Tool } from './mcp/tools/tool.js';
 
 export class LLMClient {
   private readonly _llm: Anthropic;
