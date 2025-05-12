@@ -36,6 +36,9 @@ importers:
       '@modelcontextprotocol/sdk':
         specifier: 1.10.2
         version: 1.10.2
+      commander:
+        specifier: ^13.1.0
+        version: 13.1.0
     devDependencies:
       '@types/node':
         specifier: ^22.15.3

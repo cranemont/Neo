@@ -1,15 +1,15 @@
 // Import StdioServerTransport normally
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
 // Import type for createConnection for TypeScript
-import type { createConnection as CreateConnectionType } from '@playwright/mcp';
+import { createConnection as createPlaywrightConnection } from '@playwright/mcp';
 
 // Creates a headless Playwright MCP server with SSE transport
 
 // @ts-ignore - Workaround for module resolution issue
 const { createConnection } = await import('./mcp-fix.js');
 
-async function server() {
-  const mcpServer = await createConnection({
+export async function server() {
+  const mcpServer = await createPlaywrightConnection({
     browser: {
       browserName: 'chromium',
       launchOptions: {
@@ -17,8 +17,12 @@ async function server() {
       },
     },
   });
+
   const transport = new StdioServerTransport();
   await mcpServer.connect(transport);
 }
 
-await server();
+server().catch((error) => {
+  console.error('Error:', error);
+  process.exit(1);
+});
