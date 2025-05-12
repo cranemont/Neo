@@ -1,55 +1,44 @@
-import Anthropic from '@anthropic-ai/sdk';
 import type { Tool } from '@anthropic-ai/sdk/resources';
-import * as readline from 'node:readline/promises';
-import { StdioClientTransport } from "@modelcontextprotocol/sdk/client/stdio.js";
 import { Client } from '@modelcontextprotocol/sdk/client/index.js';
-import type { MessageParam } from '@anthropic-ai/sdk/src/resources.js';
+import { StdioClientTransport } from '@modelcontextprotocol/sdk/client/stdio.js';
+import { program } from 'commander';
+import { UserInput } from '../../poc/main.js';
+import { LLMClient } from './LLMClient.js';
 
-const CLAUDE_API_KEY = process.env.CLAUDE_API_KEY;
-if (!CLAUDE_API_KEY) {
-  throw new Error('CLAUDE_API_KEY is not set');
+const LLM_API_KEY = process.env.CLAUDE_API_KEY || process.env.OPENAI_API_KEY;
+if (!LLM_API_KEY) {
+  throw new Error('No LLM API key is set (CLAUDE_API_KEY or OPENAI_API_KEY)');
 }
 
-class MCPClient {
+export class PlaywrightCodegen {
   private mcp: Client;
-  private anthropic: Anthropic;
+  private llmClient: LLMClient;
   private transport: StdioClientTransport | null = null;
   private tools: Tool[] = [];
 
-  constructor() {
-    this.anthropic = new Anthropic({
-      apiKey: CLAUDE_API_KEY,
-    });
-    this.mcp = new Client({ name: 'mcp-client-cli', version: '1.0.0' });
+  constructor(apiKey: string = LLM_API_KEY) {
+    this.llmClient = new LLMClient(apiKey);
+    this.mcp = new Client({ name: 'playwright-codegen' });
   }
-  // methods will go here
 
-  async connectToServer(serverScriptPath: string) {
+  async connectToMCPSever(serverScriptPath: string) {
     try {
-      console.log(serverScriptPath);
-      const isJs = serverScriptPath.endsWith('.js');
-      const isPy = serverScriptPath.endsWith('.py');
-      if (!isJs && !isPy) {
-        throw new Error('Server script must be a .js or .py file');
-      }
-      const command = isPy ? (process.platform === 'win32' ? 'python' : 'python3') : process.execPath;
-
       this.transport = new StdioClientTransport({
-        command,
+        command: process.execPath,
         args: [serverScriptPath],
       });
       this.mcp.connect(this.transport);
 
       const toolsResult = await this.mcp.listTools();
-      console.log(toolsResult);
+
       this.tools = toolsResult.tools.map((tool) => {
-        console.log(tool.inputSchema);
         return {
           name: tool.name,
           description: tool.description,
           input_schema: tool.inputSchema,
         };
       });
+
       console.log(
         'Connected to server with tools:',
         this.tools.map(({ name }) => name),
@@ -60,80 +49,37 @@ class MCPClient {
     }
   }
 
-  async processQuery(query: string) {
-    const messages: MessageParam[] = [
-      {
-        role: 'user',
-        content: query,
-      },
-    ];
+  async generate(context: ScenarioContext) {
+    const response = await this.llmClient.sendMessage(context.scenario, context);
 
-    const response = await this.anthropic.messages.create({
-      model: 'claude-3-5-sonnet-20241022',
-      max_tokens: 1000,
-      messages,
-      tools: this.tools,
-    });
-
-    const finalText = [];
+    const finalText = [...response.content[0]];
     const toolResults = [];
 
-    for (const content of response.content) {
-      if (content.type === 'text') {
-        finalText.push(content.text);
-      } else if (content.type === 'tool_use') {
-        console.log('tool called');
-        const toolName = content.name;
-        const toolArgs = content.input as { [x: string]: unknown } | undefined;
+    for (const toolCall of response.toolCalls) {
+      console.log('Tool called:', toolCall.name);
+      const toolName = toolCall.name;
+      const toolArgs = toolCall.input;
 
-        const result = await this.mcp.callTool({
-          name: toolName,
-          arguments: toolArgs,
-        });
-        toolResults.push(result);
+      const result = await this.mcp.callTool({
+        name: toolName,
+        arguments: toolArgs,
+      });
+      toolResults.push(result);
 
-        console.log(result, toolResults);
-        finalText.push(`[Calling tool ${toolName} with args ${JSON.stringify(toolArgs)}]`);
+      finalText.push(`[Calling tool ${toolName} with args ${JSON.stringify(toolArgs)}]`);
 
-        messages.push({
-          role: 'user',
-          content: result.content as string,
-        });
+      messages.push({
+        role: 'user',
+        content: result.content as string,
+      });
 
-        const response = await this.anthropic.messages.create({
-          model: 'claude-3-5-sonnet-20241022',
-          max_tokens: 1000,
-          messages,
-        });
-
-        finalText.push(response.content[0].type === 'text' ? response.content[0].text : '');
+      const followUpResponse = await this.llmClient.processQuery('', messages);
+      if (followUpResponse) {
+        finalText.push(...followUpResponse.text);
       }
     }
 
     return finalText.join('\n');
-  }
-
-  async chatLoop() {
-    const rl = readline.createInterface({
-      input: process.stdin,
-      output: process.stdout,
-    });
-
-    try {
-      console.log('\nMCP Client Started!');
-      console.log("Type your queries or 'quit' to exit.");
-
-      while (true) {
-        const message = await rl.question('\nQuery: ');
-        if (message.toLowerCase() === 'quit') {
-          break;
-        }
-        const response = await this.processQuery(message);
-        console.log(`\n ${response}`);
-      }
-    } finally {
-      rl.close();
-    }
   }
 
   async cleanup() {
@@ -141,19 +87,60 @@ class MCPClient {
   }
 }
 
-async function client() {
-  if (process.argv.length < 3) {
-    console.log('Usage: node index.ts <path_to_server_script>');
-    return;
+export class ScenarioContext {
+  private readonly _scenario: string;
+  private readonly _userInputs: UserInput[];
+
+  constructor(scenario: string, inputs: UserInput[]) {
+    this._scenario = scenario;
+    this._userInputs = inputs;
   }
-  const mcpClient = new MCPClient();
+
+  get scenario(): string {
+    return this._scenario;
+  }
+
+  get userInputs(): UserInput[] {
+    return this._userInputs;
+  }
+}
+
+async function main(
+  maxAttempts: number,
+  scenario: string,
+  baseUrl: string,
+  inputs: UserInput[],
+  apiKey: string,
+  mcpServer: string,
+) {
+  const codegen = new PlaywrightCodegen(apiKey);
+  const context = new ScenarioContext(scenario, inputs);
+
   try {
-    await mcpClient.connectToServer(process.argv[2]);
-    await mcpClient.chatLoop();
+    await codegen.connectToMCPSever(mcpServer);
+    await codegen.generate(context);
   } finally {
-    await mcpClient.cleanup();
+    await codegen.cleanup();
     process.exit(0);
   }
 }
 
-await client();
+program
+  .option('--scenario, -s <scenario>', 'scenario to run')
+  .option('--url, -u <baseUrl>', 'base URL to start from')
+  .option('--input, -i <inputs...>', 'user inputs')
+  .option('--max-attempts -m <maxAttempts>', 'maximum number of attempts to reach the final state')
+  .option('--api-key, -k <apiKey>', 'API key for the LLM')
+  .option('--mcp-server, -mcp <server>', 'MCP server to connect to')
+  .action(async (options) => {
+    const inputs = options.input
+      ? options.input.map((input) => {
+          const [key, value, description] = input.split(',');
+          return UserInput.of(key, value, description);
+        })
+      : [];
+
+    await main(Number(options.maxAttempts), options.scenario, options.url, inputs, options.apiKey, options.mcpServer);
+  });
+
+program.parse();
