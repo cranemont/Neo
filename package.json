@@ -10,7 +10,7 @@
     "build": "pnpm -r build",
     "build:client": "pnpm --filter mcp-client build",
     "build:server": "pnpm --filter mcp-server build",
-    "start:client": "pnpm build && pnpm --filter mcp-client start ../mcp-server/dist/server.js",
+    "start:client": "pnpm build && pnpm --filter mcp-client start",
     "start:server": "pnpm build:server && pnpm --filter mcp-server start"
   },
   "keywords": [],

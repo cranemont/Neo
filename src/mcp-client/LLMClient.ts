@@ -1,15 +1,14 @@
 import Anthropic from '@anthropic-ai/sdk';
 import type { Message, MessageParam } from '@anthropic-ai/sdk/src/resources.js';
+import type { Tool } from '@modelcontextprotocol/sdk/types.js';
 
 export class LLMContext {
   private readonly _messages: MessageParam[];
-  private readonly _model: string;
-  private readonly _maxTokens: number;
+  private readonly _tools: Tool[];
 
-  constructor(model: string, maxTokens = 2048) {
-    this._messages = [];
-    this._model = model;
-    this._maxTokens = maxTokens;
+  constructor(initialMessages: MessageParam[] = [], tools: Tool[] = []) {
+    this._messages = [...initialMessages];
+    this._tools = tools;
   }
 
   addMessage(message: MessageParam): void {
@@ -20,27 +19,31 @@ export class LLMContext {
     return this._messages;
   }
 
-  get model(): string {
-    return this._model;
+  get tools(): Tool[] {
+    return this._tools;
   }
 }
 
 export class LLMClient {
   private _client: Anthropic;
+  private _model = 'claude-3-7-sonnet-latest';
 
   constructor(apiKey: string) {
     this._client = new Anthropic({ apiKey });
   }
 
-  async sendMessage(message: string, context: LLMContext): Promise<MessageParam> {
+  async query(context: LLMContext): Promise<Message> {
     try {
       const response: Message = await this._client.messages.create({
-        model: context.model,
+        model: this._model,
         max_tokens: 2048,
-        messages: [...context.messages, { role: 'user', content: message }],
+        messages: context.messages,
+        tools: context.tools.map((tool) => ({
+          name: tool.name,
+          description: tool.description,
+          input_schema: tool.inputSchema,
+        })),
       });
-
-      context.addMessage({ role: 'user', content: message });
 
       return response;
     } catch (error) {
