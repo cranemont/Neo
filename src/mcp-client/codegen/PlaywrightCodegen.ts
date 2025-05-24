@@ -34,30 +34,44 @@ export class PlaywrightCodegen {
 
       const response = await this.llmClient.query(llmContext);
 
-      console.log(response);
+      if (response.isEndTurn()) {
+        console.log('End of turn detected, stopping attempts.');
+        // TODO: check if the response is valid and contains code
 
-      if (response.hasToolContext()) {
-        const toolUseContext = response.toolUseContext;
+        break;
+      }
+
+      if (response.isToolCalled()) {
+        const toolUse = response.toolUse;
 
         try {
-          console.log('Calling tool:', toolUseContext);
-          const toolResult = await this.mcp.callTool({
-            name: toolUseContext.name,
-            arguments: this.unmaskSensitiveData(toolUseContext.input, context.userInputs),
-          });
-          console.log(toolResult);
+          console.log('Calling tool:', toolUse);
+          const toolResult = (await this.mcp.callTool({
+            name: toolUse.name,
+            arguments: this.unmaskSensitiveData(toolUse.input, context.userInputs),
+          })) as {
+            content: [
+              {
+                type: 'text';
+                text: string;
+              },
+            ];
+          };
+          // TODO: mask sensitive data in toolResult.content text
 
-          llmContext.addUserMessage(UserMessage.ofToolResult(ToolResult.success(toolUseContext, toolResult.content)));
+          llmContext.addUserMessage(UserMessage.ofToolResult(ToolResult.success(toolUse, toolResult.content)));
         } catch (error) {
           console.error('Error calling tool:', error);
           llmContext.addUserMessage(
-            UserMessage.ofToolResult(ToolResult.error(toolUseContext, JSON.stringify({ error: error.message }))),
+            UserMessage.ofToolResult(ToolResult.error(toolUse, JSON.stringify({ error: error.message }))),
           );
         }
       }
 
       fs.writeFileSync(`messages3-${attempts}.json`, JSON.stringify(llmContext.messages, null, 2));
     }
+
+    // TODO: extract playwright code from the response with assertions
   }
 
   private unmaskSensitiveData(source: unknown, inputs: UserInput[]) {
