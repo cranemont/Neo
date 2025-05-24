@@ -1,23 +1,23 @@
 import { Client } from '@modelcontextprotocol/sdk/client/index.js';
 import { StdioClientTransport } from '@modelcontextprotocol/sdk/client/stdio.js';
 import { program } from 'commander';
-import { LLMClient } from './LLMClient.js';
-import { UserInputContext } from './InputContext.js';
-import { Codegen } from './codegen.js';
-import { ScenarioContext } from './scenarioContext.js';
+import { ClaudeClient } from './llm/ClaudeClient.js';
+import { UserInput } from './codegen/UserInput.js';
+import { PlaywrightCodegen } from './codegen/PlaywrightCodegen.js';
+import { ScenarioContext } from './codegen/ScenarioContext.js';
 
 async function main(
   maxAttempts: number,
   scenario: string,
   baseUrl: string,
-  inputs: UserInputContext[],
+  inputs: UserInput[],
   apiKey: string,
   mcpServer: string,
 ) {
   let mcpClient: Client;
 
   try {
-    const llmClient = new LLMClient(apiKey);
+    const llmClient = new ClaudeClient(apiKey);
 
     mcpClient = new Client({ name: 'playwright-codegen', version: '1.0.0' });
     const transport = new StdioClientTransport({
@@ -26,7 +26,7 @@ async function main(
     });
     await mcpClient.connect(transport);
 
-    const codegen = new Codegen(llmClient, mcpClient);
+    const codegen = new PlaywrightCodegen(llmClient, mcpClient);
     const context = new ScenarioContext(scenario, baseUrl, inputs);
 
     await codegen.generate(context);
@@ -51,7 +51,7 @@ program
     const inputs = options.input
       ? options.input.map((input) => {
           const [key, value, description] = input.split(',');
-          return UserInputContext.of(key, value, description);
+          return UserInput.of(key, value, description);
         })
       : [];
 
