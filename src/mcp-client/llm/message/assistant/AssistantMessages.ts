@@ -7,7 +7,7 @@ export class AssistantMessages {
   constructor(
     private readonly _type: LLMResponseType,
     private readonly _messages: AssistantMessage[],
-    private readonly _toolUseContext?: ToolUse,
+    private readonly _toolUse?: ToolUse,
     private readonly _originalResponse?: unknown,
   ) {}
 
@@ -32,8 +32,16 @@ export class AssistantMessages {
     return new AssistantMessages(LLMResponseType.MAX_TOKENS, messages, undefined, originalResponse);
   }
 
-  hasToolContext(): this is AssistantMessages & { get toolUseContext(): ToolUse } {
-    return this.type === LLMResponseType.TOOL_USE && this._toolUseContext !== undefined;
+  isToolCalled(): this is AssistantMessages & { get toolUseContext(): ToolUse } {
+    return this.type === LLMResponseType.TOOL_USE && this._toolUse !== undefined;
+  }
+
+  isEndTurn() {
+    return this.type === LLMResponseType.END_TURN;
+  }
+
+  toString(): string {
+    return `AssistantMessages(type=${this.type}, messages=[${this.messages.map((msg) => msg.toString()).join(', ')}], toolUseContext=${this.toolUse})`;
   }
 
   get messages(): AssistantMessage[] {
@@ -44,7 +52,7 @@ export class AssistantMessages {
     return this._type;
   }
 
-  get toolUseContext(): ToolUse | undefined {
-    return this._toolUseContext;
+  get toolUse(): ToolUse | undefined {
+    return this._toolUse;
   }
 }

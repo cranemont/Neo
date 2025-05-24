@@ -16,4 +16,8 @@ export class UserMessage {
   static ofToolResult(toolResultContext: ToolResult): UserMessage {
     return new UserMessage(UserMessageType.TOOL_RESULT, undefined, toolResultContext);
   }
+
+  toString(): string {
+    return `UserMessage(type=${this.type}, text=${this.text}, toolResult=${this.toolResult})`;
+  }
 }
