@@ -5,12 +5,12 @@
   "main": "server.js",
   "type": "module",
   "scripts": {
-    "build": "tsc && cp mcp-fix.js dist/",
+    "build": "tsc",
     "start": "node dist/server.js"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "1.10.2",
-    "@playwright/mcp": "^0.0.22"
+    "@playwright/mcp": "0.0.26"
   },
   "devDependencies": {
     "@types/node": "^22.15.3",

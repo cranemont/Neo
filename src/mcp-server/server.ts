@@ -1,11 +1,6 @@
-// Import StdioServerTransport normally
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
-// Import type for createConnection for TypeScript
-
-// Creates a headless Playwright MCP server with SSE transport
-
 // @ts-ignore - Workaround for module resolution issue
-const { createConnection } = await import('./mcp-fix.js');
+import { createConnection } from '../node_modules/@playwright/mcp/lib/connection.js';
 
 export async function server() {
   const mcpServer = await createConnection({
