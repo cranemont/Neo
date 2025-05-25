@@ -1,10 +1,10 @@
 import type { QueryContext } from './dto/QueryContext.js';
-import type { AssistantMessages } from './message/assistant/AssistantMessages.js';
+import type { LLMResponse } from './message/assistant/LLMResponse.js';
 
 export abstract class LLMClient {
-  abstract query(context: QueryContext, retries?: number): Promise<AssistantMessages>;
+  abstract query(context: QueryContext, retries?: number): Promise<LLMResponse>;
 
-  protected async retry(context: QueryContext, retriesLeft: number): Promise<AssistantMessages> {
+  protected async retry(context: QueryContext, retriesLeft: number): Promise<LLMResponse> {
     if (retriesLeft <= 0) {
       throw new Error('Max retries reached');
     }

@@ -1,50 +1,65 @@
 import { AssistantMessageType } from '../types/AssistantMessageType.js';
 import type { ToolUse } from './ToolUse.js';
-import type { ThinkingBlock } from '../types/ThinkingBlock.js';
 
-export class AssistantMessage {
-  constructor(
+type MessageTypeMap = {
+  [AssistantMessageType.TEXT]: TextAssistantMessage;
+  [AssistantMessageType.TOOL_USE]: ToolUseAssistantMessage;
+  [AssistantMessageType.THINKING]: ThinkingAssistantMessage;
+  [AssistantMessageType.REDACTED_THINKING]: RedactedThinkingAssistantMessage;
+};
+
+export abstract class BaseAssistantMessage {
+  protected constructor(
+    readonly id: string,
     readonly type: AssistantMessageType,
-    readonly text?: string,
-    readonly toolUseContext?: ToolUse,
-    readonly thinking?: ThinkingBlock,
-    readonly redactedThinking?: string,
   ) {}
 
-  static ofText(text: string): AssistantMessage {
-    return new AssistantMessage(AssistantMessageType.TEXT, text, undefined);
-  }
-
-  static ofToolUse(toolUseContext: ToolUse): AssistantMessage {
-    return new AssistantMessage(AssistantMessageType.TOOL_USE, undefined, toolUseContext);
-  }
-
-  static ofThinking(text: string, signature: string): AssistantMessage {
-    return new AssistantMessage(AssistantMessageType.THINKING, undefined, undefined, { text, signature });
-  }
-
-  static ofRedactedThinking(data: string): AssistantMessage {
-    return new AssistantMessage(AssistantMessageType.REDACTED_THINKING, undefined, undefined, undefined, data);
-  }
-
-  checkType(type: AssistantMessageType): this is AssistantMessage &
-    (
-      | {
-          text: string;
-        }
-      | { toolUseContext: ToolUse }
-      | { thinking: ThinkingBlock }
-      | { redactedThinking: string }
-    ) {
-    switch (type) {
-      case AssistantMessageType.TEXT:
-        return !!this.text;
-      case AssistantMessageType.TOOL_USE:
-        return !!this.toolUseContext;
-      case AssistantMessageType.THINKING:
-        return !!this.thinking;
-      case AssistantMessageType.REDACTED_THINKING:
-        return !!this.redactedThinking;
-    }
+  isOfType<T extends AssistantMessageType>(type: T): this is MessageTypeMap[T] {
+    return this.type === type;
   }
 }
+
+export class TextAssistantMessage extends BaseAssistantMessage {
+  constructor(
+    readonly id: string,
+    readonly text: string,
+  ) {
+    super(id, AssistantMessageType.TEXT);
+  }
+}
+
+export class ToolUseAssistantMessage extends BaseAssistantMessage {
+  constructor(
+    readonly id: string,
+    readonly toolUseContext: ToolUse,
+  ) {
+    super(id, AssistantMessageType.TOOL_USE);
+  }
+}
+
+export class ThinkingAssistantMessage extends BaseAssistantMessage {
+  constructor(
+    readonly id: string,
+    readonly thinking: {
+      text: string;
+      signature: string;
+    },
+  ) {
+    super(id, AssistantMessageType.THINKING);
+  }
+}
+
+export class RedactedThinkingAssistantMessage extends BaseAssistantMessage {
+  constructor(
+    readonly id: string,
+    readonly redactedThinking: string,
+  ) {
+    super(id, AssistantMessageType.REDACTED_THINKING);
+  }
+}
+
+export type AssistantMessage =
+  | TextAssistantMessage
+  | ToolUseAssistantMessage
+  | ThinkingAssistantMessage
+  | RedactedThinkingAssistantMessage;

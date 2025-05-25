@@ -3,36 +3,43 @@ import type { AssistantMessage } from './AssistantMessage.js';
 import type { ToolUse } from './ToolUse.js';
 import { AssistantMessageType } from '../types/AssistantMessageType.js';
 
-export class AssistantMessages {
-  constructor(
+export class LLMResponse {
+  private constructor(
+    readonly id: string,
     private readonly _type: LLMResponseType,
     private readonly _messages: AssistantMessage[],
     private readonly _toolUse?: ToolUse,
     private readonly _originalResponse?: unknown,
   ) {}
 
-  static of(messages: AssistantMessage[], originalResponse?: unknown): AssistantMessages {
-    return new AssistantMessages(LLMResponseType.END_TURN, messages, undefined, originalResponse);
+  static of(id: string, messages: AssistantMessage[], originalResponse?: unknown): LLMResponse {
+    return new LLMResponse(id, LLMResponseType.END_TURN, messages, undefined, originalResponse);
   }
 
   static ofToolUse(
+    id: string,
     messages: AssistantMessage[],
     originalResponse?: unknown,
     toolUseContext?: ToolUse,
-  ): AssistantMessages {
+  ): LLMResponse {
     if (toolUseContext) {
-      return new AssistantMessages(LLMResponseType.TOOL_USE, messages, toolUseContext, originalResponse);
+      return new LLMResponse(id, LLMResponseType.TOOL_USE, messages, toolUseContext, originalResponse);
     }
 
-    const toolUseMessage = messages.find((message) => message.type === AssistantMessageType.TOOL_USE);
-    return new AssistantMessages(LLMResponseType.TOOL_USE, messages, toolUseMessage.toolUseContext, originalResponse);
+    const toolUseMessage = messages.find((message) => message.isOfType(AssistantMessageType.TOOL_USE));
+
+    if (!toolUseMessage) {
+      throw new Error('No tool use message found in the provided messages.');
+    }
+
+    return new LLMResponse(id, LLMResponseType.TOOL_USE, messages, toolUseMessage.toolUseContext, originalResponse);
   }
 
-  static ofMaxTokens(messages: AssistantMessage[], originalResponse?: unknown): AssistantMessages {
-    return new AssistantMessages(LLMResponseType.MAX_TOKENS, messages, undefined, originalResponse);
+  static ofMaxTokens(id: string, messages: AssistantMessage[], originalResponse?: unknown): LLMResponse {
+    return new LLMResponse(id, LLMResponseType.MAX_TOKENS, messages, undefined, originalResponse);
   }
 
-  isToolCalled(): this is AssistantMessages & { get toolUseContext(): ToolUse } {
+  isToolCalled(): this is LLMResponse & { get toolUse(): ToolUse } {
     return this.type === LLMResponseType.TOOL_USE && this._toolUse !== undefined;
   }
 

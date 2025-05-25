@@ -1,23 +1,29 @@
 import { UserMessageType } from '../types/UserMessageType.js';
-
 import type { ToolResult } from './ToolResult.js';
 
-export class UserMessage {
-  constructor(
-    readonly type: UserMessageType,
-    readonly text?: string,
-    readonly toolResult?: ToolResult,
-  ) {}
+type MessageTypeMap = {
+  [UserMessageType.TEXT]: TextUserMessage;
+  [UserMessageType.TOOL_RESULT]: ToolResultUserMessage;
+};
 
-  static ofText(text: string): UserMessage {
-    return new UserMessage(UserMessageType.TEXT, text, undefined);
-  }
+export abstract class BaseUserMessage {
+  protected constructor(readonly type: UserMessageType) {}
 
-  static ofToolResult(toolResultContext: ToolResult): UserMessage {
-    return new UserMessage(UserMessageType.TOOL_RESULT, undefined, toolResultContext);
-  }
-
-  toString(): string {
-    return `UserMessage(type=${this.type}, text=${this.text}, toolResult=${this.toolResult})`;
+  isOfType<T extends UserMessageType>(type: T): this is MessageTypeMap[T] {
+    return this.type === type;
   }
 }
+
+export class TextUserMessage extends BaseUserMessage {
+  constructor(readonly text: string) {
+    super(UserMessageType.TEXT);
+  }
+}
+
+export class ToolResultUserMessage extends BaseUserMessage {
+  constructor(readonly toolResult: ToolResult) {
+    super(UserMessageType.TOOL_RESULT);
+  }
+}
+
+export type UserMessage = TextUserMessage | ToolResultUserMessage;

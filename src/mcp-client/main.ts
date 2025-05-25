@@ -33,6 +33,7 @@ async function main(
   } catch (e) {
     console.log(e);
   } finally {
+    // @ts-ignore
     if (mcpClient) {
       await mcpClient.close();
     }

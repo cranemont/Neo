@@ -5,10 +5,10 @@ import type { ScenarioContext } from './ScenarioContext.js';
 import type { UserInput } from './UserInput.js';
 import type { LLMClient } from '../llm/LLMClient.js';
 import { QueryContext } from '../llm/dto/QueryContext.js';
-import { UserMessage } from '../llm/message/user/UserMessage.js';
+import { BaseUserMessage, TextUserMessage, ToolResultUserMessage } from '../llm/message/user/UserMessage.js';
 import { ToolResult } from '../llm/message/user/ToolResult.js';
-import type { LLMMessage } from "../llm/message/types/LLMMessage.js";
-import { UserMessageType } from "../llm/message/types/UserMessageType.js";
+import type { ConversationMessage } from '../llm/message/types/ConversationMessage.js';
+import { UserMessageType } from '../llm/message/types/UserMessageType.js';
 
 type PlaywrightMcpToolResult = {
   content: [
@@ -34,7 +34,7 @@ export class PlaywrightCodegen {
 
     const tools = await this.mcp.listTools();
 
-    const llmContext = new QueryContext([UserMessage.ofText(codegenPrompt)], tools.tools);
+    const llmContext = new QueryContext([new TextUserMessage(codegenPrompt)], tools.tools);
 
     let attempts = 0;
     const isSuccess = false;
@@ -66,11 +66,11 @@ export class PlaywrightCodegen {
 
           this.removeSnapshotFromPastMessages(llmContext.messages);
 
-          llmContext.addUserMessage(UserMessage.ofToolResult(ToolResult.success(toolUse, toolResult.content)));
+          llmContext.addUserMessage(new ToolResultUserMessage(ToolResult.success(toolUse, toolResult.content)));
         } catch (error) {
           console.error('Error calling tool:', error);
           llmContext.addUserMessage(
-            UserMessage.ofToolResult(ToolResult.error(toolUse, JSON.stringify({ error: error.message }))),
+            new ToolResultUserMessage(ToolResult.error(toolUse, JSON.stringify({ error: (error as Error).message }))),
           );
         }
       }
@@ -81,9 +81,9 @@ export class PlaywrightCodegen {
     // TODO: extract playwright code from the response with assertions
   }
 
-  private removeSnapshotFromPastMessages(messages: LLMMessage[]): LLMMessage[] {
+  private removeSnapshotFromPastMessages(messages: ConversationMessage[]): ConversationMessage[] {
     return messages.map((message) => {
-      if (message instanceof UserMessage && message.type === UserMessageType.TOOL_RESULT) {
+      if (message instanceof BaseUserMessage && message.isOfType(UserMessageType.TOOL_RESULT)) {
         const originalToolResult = message.toolResult as unknown as PlaywrightMcpToolResult;
 
         originalToolResult.content[0].text = originalToolResult.content[0].text.replace(
