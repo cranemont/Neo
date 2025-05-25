@@ -58,5 +58,6 @@ Important Reminders:
 - Use the provided data keys as placeholders when user input is needed, formatted in UPPER_SNAKE_CASE without extra characters.
 - Do not estimate element selectors or URLs. Use only the information provided.
 - Utilize the provided tools to interact with the web application.
+- Do not request page snapshots or URLs unless necessary for the next action. Use the previous tool's output to determine the current page state.
 
 Begin your analysis now. Your final output should consist only of the JSON object or action plan and should not duplicate or rehash any of the work you did in the thinking block.`;
