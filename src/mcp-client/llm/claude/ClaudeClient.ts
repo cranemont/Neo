@@ -1,10 +1,10 @@
 import Anthropic from '@anthropic-ai/sdk';
 import type { Tool } from '@anthropic-ai/sdk/resources/index';
-import { LLMResponseType } from './message/types/LLMResponseType.js';
-import type { QueryContext } from './dto/QueryContext.js';
-import type { LLMResponse } from './message/assistant/LLMResponse.js';
-import { LLMClient } from './LLMClient.js';
-import { AnthropicMessageAdapter } from './claude/Adaptor.js';
+import { LLMResponseType } from '../message/types/LLMResponseType.js';
+import type { QueryContext } from '../QueryContext.js';
+import type { LLMResponse } from '../message/assistant/LLMResponse.js';
+import { LLMClient } from '../LLMClient.js';
+import { AnthropicMessageAdapter } from './Adaptor.js';
 
 export class ClaudeClient extends LLMClient {
   private _client: Anthropic;

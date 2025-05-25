@@ -1,4 +1,4 @@
-import type { QueryContext } from './dto/QueryContext.js';
+import type { QueryContext } from './QueryContext.js';
 import type { LLMResponse } from './message/assistant/LLMResponse.js';
 
 export abstract class LLMClient {

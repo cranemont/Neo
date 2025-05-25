@@ -1,6 +1,6 @@
-import type { UserMessage } from '../message/user/UserMessage.js';
-import type { LLMResponse } from '../message/assistant/LLMResponse.js';
-import type { ConversationMessage } from "../message/types/ConversationMessage.js";
+import type { UserMessage } from './message/user/UserMessage.js';
+import type { LLMResponse } from './message/assistant/LLMResponse.js';
+import type { ConversationMessage } from './message/types/ConversationMessage.js';
 
 export interface ToolSchema {
   name: string;

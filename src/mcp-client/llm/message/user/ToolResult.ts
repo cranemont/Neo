@@ -2,7 +2,7 @@ import type { ToolUse } from '../assistant/ToolUse.js';
 
 export class ToolResult {
   constructor(
-    readonly toolUseContext: ToolUse,
+    readonly toolUse: ToolUse,
     readonly content: unknown[] | string,
     readonly isError: boolean = false,
   ) {}
@@ -16,10 +16,10 @@ export class ToolResult {
   }
 
   get id(): string {
-    return this.toolUseContext.id;
+    return this.toolUse.id;
   }
 
   get name(): string {
-    return this.toolUseContext.name;
+    return this.toolUse.name;
   }
 }

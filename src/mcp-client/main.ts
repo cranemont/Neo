@@ -1,7 +1,7 @@
 import { Client } from '@modelcontextprotocol/sdk/client/index.js';
 import { StdioClientTransport } from '@modelcontextprotocol/sdk/client/stdio.js';
 import { program } from 'commander';
-import { ClaudeClient } from './llm/ClaudeClient.js';
+import { ClaudeClient } from './llm/claude/ClaudeClient.js';
 import { UserInput } from './codegen/UserInput.js';
 import { PlaywrightCodegen } from './codegen/PlaywrightCodegen.js';
 import { ScenarioContext } from './codegen/ScenarioContext.js';

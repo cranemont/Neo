@@ -4,7 +4,7 @@ import fs from 'node:fs';
 import type { ScenarioContext } from './ScenarioContext.js';
 import type { UserInput } from './UserInput.js';
 import type { LLMClient } from '../llm/LLMClient.js';
-import { QueryContext } from '../llm/dto/QueryContext.js';
+import { QueryContext } from '../llm/QueryContext.js';
 import { BaseUserMessage, TextUserMessage, ToolResultUserMessage } from '../llm/message/user/UserMessage.js';
 import { ToolResult } from '../llm/message/user/ToolResult.js';
 import type { ConversationMessage } from '../llm/message/types/ConversationMessage.js';
@@ -34,7 +34,7 @@ export class PlaywrightCodegen {
 
     const tools = await this.mcp.listTools();
 
-    const llmContext = new QueryContext([new TextUserMessage(codegenPrompt)], tools.tools);
+    const queryContext = new QueryContext([new TextUserMessage(codegenPrompt)], tools.tools);
 
     let attempts = 0;
     const isSuccess = false;
@@ -43,7 +43,7 @@ export class PlaywrightCodegen {
       attempts += 1;
       console.log(`Attempt ${attempts} of ${context.scenario}`);
 
-      const response = await this.llmClient.query(llmContext);
+      const response = await this.llmClient.query(queryContext);
 
       if (response.isEndTurn()) {
         console.log('End of turn detected, stopping attempts.');
@@ -64,18 +64,18 @@ export class PlaywrightCodegen {
 
           toolResult.content = this.maskSensitiveData(toolResult.content, context.userInputs);
 
-          this.removeSnapshotFromPastMessages(llmContext.messages);
+          this.removeSnapshotFromPastMessages(queryContext.messages);
 
-          llmContext.addUserMessage(new ToolResultUserMessage(ToolResult.success(toolUse, toolResult.content)));
+          queryContext.addUserMessage(new ToolResultUserMessage(ToolResult.success(toolUse, toolResult.content)));
         } catch (error) {
           console.error('Error calling tool:', error);
-          llmContext.addUserMessage(
+          queryContext.addUserMessage(
             new ToolResultUserMessage(ToolResult.error(toolUse, JSON.stringify({ error: (error as Error).message }))),
           );
         }
       }
 
-      fs.writeFileSync(`messages3-${attempts}.json`, JSON.stringify(llmContext.messages, null, 2));
+      fs.writeFileSync(`messages3-${attempts}.json`, JSON.stringify(queryContext.messages, null, 2));
     }
 
     // TODO: extract playwright code from the response with assertions
