@@ -9,6 +9,10 @@ export class UserInput {
     return new UserInput(key, value, description);
   }
 
+  mask(text: string): string {
+    return text.replace(this._value, this.toUpperSnakeCase(this._key));
+  }
+
   unmask(text: string) {
     return text.replace(this.toUpperSnakeCase(this._key), this._value);
   }

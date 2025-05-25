@@ -7,6 +7,17 @@ import type { LLMClient } from '../llm/LLMClient.js';
 import { QueryContext } from '../llm/dto/QueryContext.js';
 import { UserMessage } from '../llm/message/user/UserMessage.js';
 import { ToolResult } from '../llm/message/user/ToolResult.js';
+import type { LLMMessage } from "../llm/message/types/LLMMessage.js";
+import { UserMessageType } from "../llm/message/types/UserMessageType.js";
+
+type PlaywrightMcpToolResult = {
+  content: [
+    {
+      type: 'text';
+      text: string;
+    },
+  ];
+};
 
 export class PlaywrightCodegen {
   constructor(
@@ -49,15 +60,11 @@ export class PlaywrightCodegen {
           const toolResult = (await this.mcp.callTool({
             name: toolUse.name,
             arguments: this.unmaskSensitiveData(toolUse.input, context.userInputs),
-          })) as {
-            content: [
-              {
-                type: 'text';
-                text: string;
-              },
-            ];
-          };
-          // TODO: mask sensitive data in toolResult.content text
+          })) as PlaywrightMcpToolResult;
+
+          toolResult.content = this.maskSensitiveData(toolResult.content, context.userInputs);
+
+          this.removeSnapshotFromPastMessages(llmContext.messages);
 
           llmContext.addUserMessage(UserMessage.ofToolResult(ToolResult.success(toolUse, toolResult.content)));
         } catch (error) {
@@ -74,13 +81,35 @@ export class PlaywrightCodegen {
     // TODO: extract playwright code from the response with assertions
   }
 
+  private removeSnapshotFromPastMessages(messages: LLMMessage[]): LLMMessage[] {
+    return messages.map((message) => {
+      if (message instanceof UserMessage && message.type === UserMessageType.TOOL_RESULT) {
+        const originalToolResult = message.toolResult as unknown as PlaywrightMcpToolResult;
+
+        originalToolResult.content[0].text = originalToolResult.content[0].text.replace(
+          /- Page Snapshot\s*\n```yaml\n[\s\S]*?\n```/g,
+          '- Page Snapshot: [REMOVED]',
+        );
+      }
+      return message;
+    });
+  }
+
+  private maskSensitiveData(source: unknown, inputs: UserInput[]) {
+    let stringifiedSource = JSON.stringify(source);
+    for (const input of inputs) {
+      stringifiedSource = input.mask(stringifiedSource);
+    }
+
+    return JSON.parse(stringifiedSource);
+  }
+
   private unmaskSensitiveData(source: unknown, inputs: UserInput[]) {
     let stringifiedSource = JSON.stringify(source);
     for (const input of inputs) {
       stringifiedSource = input.unmask(stringifiedSource);
     }
 
-    console.log('Unmasking sensitive data in source:', stringifiedSource);
     return JSON.parse(stringifiedSource);
   }
 }
