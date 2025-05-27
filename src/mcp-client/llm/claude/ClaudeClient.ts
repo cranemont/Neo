@@ -8,8 +8,8 @@ import { AnthropicMessageAdapter } from './Adaptor.js';
 
 export class ClaudeClient extends LLMClient {
   private _client: Anthropic;
-  private _model = 'claude-3-7-sonnet-latest';
-  private _maxTokens = 2048;
+  private _model = 'claude-4-sonnet-20250514'; //'claude-3-7-sonnet-latest';
+  private _maxTokens = 4096;
   private _maxRetries = 3;
   private _messageAdaptor = new AnthropicMessageAdapter();
 

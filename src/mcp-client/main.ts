@@ -1,10 +1,10 @@
 import { Client } from '@modelcontextprotocol/sdk/client/index.js';
 import { StdioClientTransport } from '@modelcontextprotocol/sdk/client/stdio.js';
 import { program } from 'commander';
-import { ClaudeClient } from './llm/claude/ClaudeClient.js';
 import { UserInput } from './codegen/UserInput.js';
 import { PlaywrightCodegen } from './codegen/PlaywrightCodegen.js';
 import { ScenarioContext } from './codegen/ScenarioContext.js';
+import { Gemini } from './llm/google/Gemini.js';
 
 async function main(
   maxAttempts: number,
@@ -17,7 +17,8 @@ async function main(
   let mcpClient: Client;
 
   try {
-    const llmClient = new ClaudeClient(apiKey);
+    // const llmClient = new ClaudeClient(apiKey);
+    const llmClient = new Gemini(apiKey);
 
     mcpClient = new Client({ name: 'playwright-codegen', version: '1.0.0' });
     const transport = new StdioClientTransport({

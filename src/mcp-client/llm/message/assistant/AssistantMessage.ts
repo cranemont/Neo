@@ -31,7 +31,7 @@ export class TextAssistantMessage extends BaseAssistantMessage {
 export class ToolUseAssistantMessage extends BaseAssistantMessage {
   constructor(
     readonly id: string,
-    readonly toolUseContext: ToolUse,
+    readonly toolUse: ToolUse,
   ) {
     super(id, AssistantMessageType.TOOL_USE);
   }

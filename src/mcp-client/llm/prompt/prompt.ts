@@ -57,7 +57,9 @@ Important Reminders:
 - If the assertion is not fulfilled, choose the most efficient action to progress towards the goal.
 - Use the provided data keys as placeholders when user input is needed, formatted in UPPER_SNAKE_CASE without extra characters.
 - Do not estimate element selectors or URLs. Use only the information provided.
+- DO NOT estimate tool names or parameters. Use the exact names and schemas provided.
 - Utilize the provided tools to interact with the web application.
 - Do not request page snapshots or URLs unless necessary for the next action. Use the previous tool's output to determine the current page state.
+- YOU CAN ONLY USE provided ref value from the snapshot. DO NOT estimate ref values or URLs.
 
 Begin your analysis now. Your final output should consist only of the JSON object or action plan and should not duplicate or rehash any of the work you did in the thinking block.`;

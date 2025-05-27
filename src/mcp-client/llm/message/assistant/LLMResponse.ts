@@ -32,7 +32,7 @@ export class LLMResponse {
       throw new Error('No tool use message found in the provided messages.');
     }
 
-    return new LLMResponse(id, LLMResponseType.TOOL_USE, messages, toolUseMessage.toolUseContext, originalResponse);
+    return new LLMResponse(id, LLMResponseType.TOOL_USE, messages, toolUseMessage.toolUse, originalResponse);
   }
 
   static ofMaxTokens(id: string, messages: AssistantMessage[], originalResponse?: unknown): LLMResponse {

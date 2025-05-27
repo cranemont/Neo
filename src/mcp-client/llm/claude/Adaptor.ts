@@ -18,7 +18,7 @@ import { BaseUserMessage, type UserMessage } from '../message/user/UserMessage.j
 import { UserMessageType } from '../message/types/UserMessageType.js';
 import { LLMResponse } from '../message/assistant/LLMResponse.js';
 import { ToolUse } from '../message/assistant/ToolUse.js';
-import type { ConversationMessage } from "../message/types/ConversationMessage.js";
+import type { ConversationMessage } from '../message/types/ConversationMessage.js';
 
 export class AnthropicMessageAdapter {
   toLLMResponse(message: Message): LLMResponse {
@@ -109,9 +109,9 @@ export class AnthropicMessageAdapter {
     if (message.isOfType(AssistantMessageType.TOOL_USE)) {
       return {
         type: 'tool_use',
-        id: message.toolUseContext.id,
-        name: message.toolUseContext.name,
-        input: message.toolUseContext.input,
+        id: message.toolUse.id,
+        name: message.toolUse.name,
+        input: message.toolUse.input,
       };
     }
 

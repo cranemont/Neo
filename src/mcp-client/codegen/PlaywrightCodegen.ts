@@ -63,6 +63,7 @@ export class PlaywrightCodegen {
           })) as PlaywrightMcpToolResult;
 
           toolResult.content = this.maskSensitiveData(toolResult.content, context.userInputs);
+          // toolResult.content[0].text = `${toolResult.content[0].text.slice(0, toolResult.content[0].text.length / 3)}\n\`\`\``;
 
           this.removeSnapshotFromPastMessages(queryContext.messages);
 
@@ -75,7 +76,7 @@ export class PlaywrightCodegen {
         }
       }
 
-      fs.writeFileSync(`messages3-${attempts}.json`, JSON.stringify(queryContext.messages, null, 2));
+      fs.writeFileSync(`gemini-${attempts}.json`, JSON.stringify(queryContext.messages, null, 2));
     }
 
     // TODO: extract playwright code from the response with assertions
