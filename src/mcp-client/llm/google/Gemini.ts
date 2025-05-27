@@ -1,18 +1,17 @@
 import { LLMClient } from '../LLMClient.js';
 import type { LLMResponse } from '../message/assistant/LLMResponse.js';
 import type { QueryContext } from '../QueryContext.js';
-import { GoogleGenAI, type Schema } from "@google/genai";
-import { GeminiMessageAdapter } from './Adaptor.js';
+import { type Content, type GenerateContentResponse, GoogleGenAI, type Schema } from '@google/genai';
 import { LLMResponseType } from '../message/types/LLMResponseType.js';
+import { GeminiAdapter } from './GeminiAdapter.js';
 
-export class Gemini extends LLMClient {
+export class Gemini extends LLMClient<Content[], GenerateContentResponse> {
   private _client: GoogleGenAI;
   private _model = 'gemini-2.5-flash-preview-05-20';
   private _maxRetries = 3;
-  private _messageAdapter = new GeminiMessageAdapter();
 
   constructor(readonly apiKey: string) {
-    super();
+    super(new GeminiAdapter());
     this._client = new GoogleGenAI({ apiKey });
   }
 
@@ -21,7 +20,7 @@ export class Gemini extends LLMClient {
       const response = await this._client.models
         .generateContent({
           model: this._model,
-          contents: this._messageAdapter.toContentArray(context.messages),
+          contents: this.adapter.toRequest(context.messages),
           config: {
             temperature: 0,
             tools: [
@@ -35,7 +34,7 @@ export class Gemini extends LLMClient {
             ],
           },
         })
-        .then((res) => this._messageAdapter.toLLMResponse(res));
+        .then((res) => this.adapter.toResponse(res));
 
       console.log(JSON.stringify(response, null, 2));
 

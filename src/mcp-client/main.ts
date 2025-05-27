@@ -4,7 +4,7 @@ import { program } from 'commander';
 import { UserInput } from './codegen/UserInput.js';
 import { PlaywrightCodegen } from './codegen/PlaywrightCodegen.js';
 import { ScenarioContext } from './codegen/ScenarioContext.js';
-import { Gemini } from './llm/google/Gemini.js';
+import { Gemini } from "./llm/google/Gemini.js";
 
 async function main(
   maxAttempts: number,
@@ -17,7 +17,7 @@ async function main(
   let mcpClient: Client;
 
   try {
-    // const llmClient = new ClaudeClient(apiKey);
+    // const llmClient = new Claude(apiKey);
     const llmClient = new Gemini(apiKey);
 
     mcpClient = new Client({ name: 'playwright-codegen', version: '1.0.0' });

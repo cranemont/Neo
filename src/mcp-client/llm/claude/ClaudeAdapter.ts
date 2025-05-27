@@ -19,9 +19,10 @@ import { UserMessageType } from '../message/types/UserMessageType.js';
 import { LLMResponse } from '../message/assistant/LLMResponse.js';
 import { ToolUse } from '../message/assistant/ToolUse.js';
 import type { ConversationMessage } from '../message/types/ConversationMessage.js';
+import type { MessageAdaptor } from '../interface/MessageAdaptor.js';
 
-export class AnthropicMessageAdapter {
-  toLLMResponse(message: Message): LLMResponse {
+export class ClaudeAdapter implements MessageAdaptor<MessageParam[], Message> {
+  toResponse(message: Message): LLMResponse {
     const id = crypto.randomUUID();
     const messages = message.content.map((block) => this.fromContentBlock(id, block));
 
@@ -61,7 +62,7 @@ export class AnthropicMessageAdapter {
     }
   }
 
-  toMessageParam(messages: ConversationMessage[]): MessageParam[] {
+  toRequest(messages: ConversationMessage[]): MessageParam[] {
     return messages.reduce((messageParam: MessageParam[], message) => {
       if (message instanceof BaseUserMessage) {
         messageParam.push({
