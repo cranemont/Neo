@@ -63,7 +63,6 @@ export class PlaywrightCodegen {
           })) as PlaywrightMcpToolResult;
 
           toolResult.content = this.maskSensitiveData(toolResult.content, context.userInputs);
-          // toolResult.content[0].text = `${toolResult.content[0].text.slice(0, toolResult.content[0].text.length / 3)}\n\`\`\``;
 
           this.removeSnapshotFromPastMessages(queryContext.messages);
 
@@ -79,7 +78,26 @@ export class PlaywrightCodegen {
       fs.writeFileSync(`gemini-${attempts}.json`, JSON.stringify(queryContext.messages, null, 2));
     }
 
-    // TODO: extract playwright code from the response with assertions
+    const code = this.unmaskSensitiveData(this.extractCodeFromMessages(queryContext.messages), context.userInputs);
+    fs.writeFileSync(`test-${context.scenario}.ts`, this.makeCodeSnippet(code, context.scenario));
+  }
+
+  private makeCodeSnippet(code: string, scenario: string): string {
+    return `import { test } from '@playwright/test'; \n\ntest('${scenario}', async ({ page }) => {\n${code}\n});`;
+  }
+
+  private extractCodeFromMessages(messages: ConversationMessage[]): string {
+    return messages
+      .filter((message) => message instanceof BaseUserMessage && message.isOfType(UserMessageType.TOOL_RESULT))
+      .map((message) => {
+        const toolResult = message.toolResult as unknown as PlaywrightMcpToolResult;
+        const code = toolResult.content[0].text.match(/```js\n([\s\S]*?)\n```/);
+        if (code?.[1]) {
+          return code[1].trim();
+        }
+        return '';
+      })
+      .join('\n');
   }
 
   private removeSnapshotFromPastMessages(messages: ConversationMessage[]): ConversationMessage[] {
@@ -98,6 +116,7 @@ export class PlaywrightCodegen {
 
   private maskSensitiveData(source: unknown, inputs: UserInput[]) {
     let stringifiedSource = JSON.stringify(source);
+    console.log(stringifiedSource.slice(0, 200));
     for (const input of inputs) {
       stringifiedSource = input.mask(stringifiedSource);
     }
