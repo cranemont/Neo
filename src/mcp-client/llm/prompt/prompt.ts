@@ -1,4 +1,11 @@
-export const CODEGEN_PROMPT_V1 = (testScenario: string, baseUrl: string, userInputs: string) => `
+import { UserInput } from "../../codegen/UserInput.js";
+
+export const CODEGEN_PROMPT_V1 = (
+  testScenario: string,
+  baseUrl: string,
+  userInputs: string,
+  wrapper = UserInput.WRAPPER,
+) => `
 You are an expert QA engineer tasked with testing a web application. 
 You have access to tools that can manipulate browsers, navigate web pages, and interact with web elements. 
 Your goal is to verify if the web application meets the given test scenario.
@@ -47,7 +54,7 @@ If the test scenario is not yet passed, provide a detailed action plan for the n
 
 Important Reminders:
 - If the test scenario is not fulfilled, choose the most efficient next action to progress towards the goal.
-- Use the provided data keys as placeholders when user input is needed, formatted in $$UPPER_SNAKE_CASE$$.
+- Use the provided data keys as placeholders when user input is needed, formatted in ${wrapper}UPPER_SNAKE_CASE${wrapper}.
 - Do not estimate element selectors or URLs. Use the exact values provided in the previous tool's output or given information.
 - DO NOT estimate tool names or parameters. Use the exact names and schemas provided.
 - Utilize the provided tools to interact with the web application.

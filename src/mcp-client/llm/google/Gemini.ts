@@ -17,6 +17,7 @@ export class Gemini extends LLMClient<Content[], GenerateContentResponse> {
 
   async query(context: QueryContext, retries = this._maxRetries): Promise<LLMResponse> {
     try {
+      console.log('calling gemini...');
       const response = await this._client.models
         .generateContent({
           model: this._model,
@@ -35,8 +36,6 @@ export class Gemini extends LLMClient<Content[], GenerateContentResponse> {
           },
         })
         .then((res) => this.adapter.toResponse(res));
-
-      console.log(JSON.stringify(response, null, 2));
 
       context.addLLMResponse(response);
 
