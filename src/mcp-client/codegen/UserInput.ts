@@ -1,4 +1,6 @@
 export class UserInput {
+  static readonly WRAPPER = '__';
+
   constructor(
     private readonly _key: string,
     private readonly _value: string,
@@ -6,19 +8,19 @@ export class UserInput {
   ) {}
 
   static of(key: string, value: string, description: string) {
-    return new UserInput(key, value, description);
+    return new UserInput(
+      `${UserInput.WRAPPER}${key.toUpperCase().replaceAll(/ /g, '_')}${UserInput.WRAPPER}`,
+      value,
+      description,
+    );
   }
 
   mask(text: string): string {
-    return text.replace(this._value, this.toUpperSnakeCase(this._key));
+    return text.replaceAll(this._value, this._key);
   }
 
   unmask(text: string) {
-    return text.replace(this.toUpperSnakeCase(this._key), this._value);
-  }
-
-  private toUpperSnakeCase(text: string) {
-    return text.toUpperCase().replace(/ /g, '_');
+    return text.replaceAll(this._key, this._value);
   }
 
   get keyWithDescription() {
