@@ -9,6 +9,7 @@ export async function server() {
       launchOptions: {
         headless: false,
       },
+      userDataDir: './browser-data',
     },
   });
 
