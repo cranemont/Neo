@@ -1,5 +1,5 @@
 import type { Client } from '@modelcontextprotocol/sdk/client/index.js';
-import { CODEGEN_PROMPT_V1 } from '../llm/prompt/prompt.js';
+import { CODEGEN_PROMPT_V1 } from '../llm/prompt/explorer.js';
 import fs from 'node:fs';
 import type { ScenarioContext } from './ScenarioContext.js';
 import type { UserInput } from './UserInput.js';
@@ -9,6 +9,8 @@ import { BaseUserMessage, TextUserMessage, ToolResultUserMessage } from '../llm/
 import { ToolResult } from '../llm/message/user/ToolResult.js';
 import type { ConversationMessage } from '../llm/message/types/ConversationMessage.js';
 import { UserMessageType } from '../llm/message/types/UserMessageType.js';
+import { ASSERTION_PROMPT_V1 } from '../llm/prompt/assertion.js';
+import { CODE_EXTRACTION_PROMPT_V1 } from "../llm/prompt/codegen.js";
 
 type PlaywrightMcpToolResult = {
   content: [
@@ -78,8 +80,28 @@ export class PlaywrightCodegen {
       fs.writeFileSync(`gemini-${attempts}.json`, JSON.stringify(queryContext.messages, null, 2));
     }
 
-    const code = this.unmaskSensitiveData(this.extractCodeFromMessages(queryContext.messages), context.userInputs);
+    const assertionResult = await this.createAssertion(queryContext.copy(), context.scenario);
+    fs.writeFileSync('assertion.json', JSON.stringify(assertionResult.messages, null, 2));
+    // TODO: assertion 확인 후 실패인 경우 에러처리
+
+    const maskedCode = this.extractCodeFromMessages(queryContext.messages);
+    const extractedCode = await this.extractCode(queryContext.copy(), context.scenario, maskedCode);
+    fs.writeFileSync('extracted-code.json', JSON.stringify(extractedCode.messages, null, 2));
+
+    const code = this.unmaskSensitiveData(maskedCode, context.userInputs);
     fs.writeFileSync(`test-${context.scenario}.ts`, this.makeCodeSnippet(code, context.scenario));
+  }
+
+  private async createAssertion(context: QueryContext, scenario: string) {
+    context.addUserMessage(new TextUserMessage(ASSERTION_PROMPT_V1(scenario)));
+
+    return await this.llmClient.query(context);
+  }
+
+  private async extractCode(context: QueryContext, scenario: string, code: string) {
+    context.addUserMessage(new TextUserMessage(CODE_EXTRACTION_PROMPT_V1(scenario, code)));
+
+    return await this.llmClient.query(context);
   }
 
   private makeCodeSnippet(code: string, scenario: string): string {
@@ -133,3 +155,10 @@ export class PlaywrightCodegen {
     return JSON.parse(stringifiedSource);
   }
 }
+
+fs.writeFileSync(
+  'playwright-codegen.json',
+  JSON.parse(
+    "{\n  \"code\": '''\nimport { test, expect } from '@playwright/test';\n\ntest('로그인한 사용자의 경우 대시보드 페이지에서 추천 채용 공고를 확인할 수 있다', async ({ page }) => {\n  await page.goto('https://www.inflearn.com');\n  await page.keyboard.press('Escape');\n  await page.getByRole('button', { name: '로그인' }).click();\n  await page.getByRole('textbox', { name: '이메일' }).fill('__EMAIL__');\n  await page.getByRole('textbox', { name: '비밀번호' }).fill('__PASSWORD__');\n  await page.getByRole('button', { name: '로그인', exact: true }).click();\n  await page.getByRole('button', { name: '다음으로' }).click();\n  await page.getByRole('button', { name: '다음에 할게요' }).click();\n  await page.getByRole('link', { name: '대시보드' }).click();\n\n  // Verify the presence of recommended job postings on the dashboard\n  await expect(page.getByText('추천 채용')).toBeVisible();\n  await expect(page.getByText('Full-Stack Enginner (풀스택 개발자)')).toBeVisible();\n});\n''',\n  \"explanation\": \"The provided Playwright code directly reflects the successful sequence of actions taken to fulfill the test scenario. \\n\\nOptimizations made:\\n1. Removed the internal `browser_snapshot` call as it's a tool-specific action and not part of the Playwright test script.\\n2. Added an assertion `await expect(page.getByText('추천 채용')).toBeVisible();` and `await expect(page.getByText('Full-Stack Enginner (풀스택 개발자)')).toBeVisible();` to verify that '추천 채용' (Recommended Jobs) and a sample job posting are visible on the dashboard, confirming the test scenario's success. This ensures the test explicitly checks for the desired outcome.\"\n}",
+  ),
+);
