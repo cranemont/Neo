@@ -27,6 +27,10 @@ export class QueryContext {
     }
   }
 
+  copy(): QueryContext {
+    return new QueryContext([...this._messages], [...this._tools]);
+  }
+
   get messages(): ConversationMessage[] {
     return this._messages;
   }

@@ -1,5 +1,5 @@
 import type { Client } from '@modelcontextprotocol/sdk/client/index.js';
-import { CODEGEN_PROMPT_V1 } from '../llm/prompt/prompt.js';
+import { CODEGEN_PROMPT_V1 } from '../llm/prompt/explorer.js';
 import fs from 'node:fs';
 import type { ScenarioContext } from './ScenarioContext.js';
 import type { UserInput } from './UserInput.js';
@@ -9,6 +9,8 @@ import { BaseUserMessage, TextUserMessage, ToolResultUserMessage } from '../llm/
 import { ToolResult } from '../llm/message/user/ToolResult.js';
 import type { ConversationMessage } from '../llm/message/types/ConversationMessage.js';
 import { UserMessageType } from '../llm/message/types/UserMessageType.js';
+import { ASSERTION_PROMPT_V1 } from '../llm/prompt/assertion.js';
+import { CODE_EXTRACTION_PROMPT_V1 } from "../llm/prompt/codegen.js";
 
 type PlaywrightMcpToolResult = {
   content: [
@@ -78,8 +80,28 @@ export class PlaywrightCodegen {
       fs.writeFileSync(`gemini-${attempts}.json`, JSON.stringify(queryContext.messages, null, 2));
     }
 
-    const code = this.unmaskSensitiveData(this.extractCodeFromMessages(queryContext.messages), context.userInputs);
+    const assertionResult = await this.createAssertion(queryContext.copy(), context.scenario);
+    fs.writeFileSync('assertion.json', JSON.stringify(assertionResult.messages, null, 2));
+    // TODO: assertion 확인 후 실패인 경우 에러처리
+
+    const maskedCode = this.extractCodeFromMessages(queryContext.messages);
+    const extractedCode = await this.extractCode(queryContext.copy(), context.scenario, maskedCode);
+    fs.writeFileSync('extracted-code.json', JSON.stringify(extractedCode.messages, null, 2));
+
+    const code = this.unmaskSensitiveData(maskedCode, context.userInputs);
     fs.writeFileSync(`test-${context.scenario}.ts`, this.makeCodeSnippet(code, context.scenario));
+  }
+
+  private async createAssertion(context: QueryContext, scenario: string) {
+    context.addUserMessage(new TextUserMessage(ASSERTION_PROMPT_V1(scenario)));
+
+    return await this.llmClient.query(context);
+  }
+
+  private async extractCode(context: QueryContext, scenario: string, code: string) {
+    context.addUserMessage(new TextUserMessage(CODE_EXTRACTION_PROMPT_V1(scenario, code)));
+
+    return await this.llmClient.query(context);
   }
 
   private makeCodeSnippet(code: string, scenario: string): string {
