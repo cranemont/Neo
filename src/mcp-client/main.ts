@@ -3,8 +3,8 @@ import { StdioClientTransport } from '@modelcontextprotocol/sdk/client/stdio.js'
 import { program } from 'commander';
 import { UserInput } from './codegen/UserInput.js';
 import { PlaywrightCodegen } from './codegen/PlaywrightCodegen.js';
-import { ScenarioContext } from './codegen/ScenarioContext.js';
-import { Gemini } from "./llm/google/Gemini.js";
+import { Gemini } from './llm/google/Gemini.js';
+import { ExecutionContext } from './codegen/ExecutionContext.js';
 
 async function main(
   maxAttempts: number,
@@ -28,7 +28,7 @@ async function main(
     await mcpClient.connect(transport);
 
     const codegen = new PlaywrightCodegen(llmClient, mcpClient);
-    const context = new ScenarioContext(scenario, baseUrl, inputs);
+    const context = ExecutionContext.init(scenario, baseUrl, inputs);
 
     await codegen.generate(context);
   } catch (e) {

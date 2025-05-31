@@ -1,7 +1,6 @@
 import type { Client } from '@modelcontextprotocol/sdk/client/index.js';
 import { CODEGEN_PROMPT_V1 } from '../llm/prompt/explorer.js';
 import fs from 'node:fs';
-import type { ScenarioContext } from './ScenarioContext.js';
 import type { UserInput } from './UserInput.js';
 import type { LLMClient } from '../llm/LLMClient.js';
 import { QueryContext } from '../llm/QueryContext.js';
@@ -11,6 +10,7 @@ import type { ConversationMessage } from '../llm/message/types/ConversationMessa
 import { UserMessageType } from '../llm/message/types/UserMessageType.js';
 import { ASSERTION_PROMPT_V1 } from '../llm/prompt/assertion.js';
 import { CODE_EXTRACTION_PROMPT_V1 } from "../llm/prompt/codegen.js";
+import type { ExecutionContext } from "./ExecutionContext.js";
 
 type PlaywrightMcpToolResult = {
   content: [
@@ -27,11 +27,12 @@ export class PlaywrightCodegen {
     private readonly mcp: Client,
   ) {}
 
-  async generate(context: ScenarioContext) {
+  async generate(context: ExecutionContext) {
     const codegenPrompt = CODEGEN_PROMPT_V1(
       context.scenario,
       context.baseUrl,
-      JSON.stringify(context.userInputContext),
+      JSON.stringify(context.userInputs.map((input) => input.keyWithDescription)),
+      JSON.stringify(context.domainContext),
     );
 
     const tools = await this.mcp.listTools();
@@ -77,7 +78,7 @@ export class PlaywrightCodegen {
         }
       }
 
-      fs.writeFileSync(`gemini-${attempts}.json`, JSON.stringify(queryContext.messages, null, 2));
+      // fs.writeFileSync(`gemini-${attempts}.json`, JSON.stringify(queryContext.messages, null, 2));
     }
 
     const assertionResult = await this.createAssertion(queryContext.copy(), context.scenario);
