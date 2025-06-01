@@ -1,7 +1,7 @@
 {
-  "name": "mcp-server",
+  "name": "playwright-mcp",
   "version": "1.0.0",
-  "description": "MCP Server",
+  "description": "Playwright MCP Integration",
   "main": "server.js",
   "type": "module",
   "scripts": {

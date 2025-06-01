@@ -8,22 +8,12 @@
     "format": "biome format --write ./",
     "lint": "biome check --write ./",
     "build": "pnpm -r build",
-    "build:client": "pnpm --filter mcp-client build",
-    "build:server": "pnpm --filter mcp-server build",
-    "start:client": "pnpm build && pnpm --filter mcp-client start",
-    "start:server": "pnpm build:server && pnpm --filter mcp-server start"
+    "start:explorer": "pnpm build && pnpm --filter explorer start"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "@biomejs/biome": "1.9.4",
-    "ts-node": "^10.9.2",
-    "tsx": "^4.19.4"
-  },
-  "dependencies": {
-    "cheerio": "^1.0.0",
-    "commander": "^13.1.0",
-    "ts-jenum": "^2.2.2"
+    "@biomejs/biome": "1.9.4"
   }
 }

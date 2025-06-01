@@ -1,3 +1,4 @@
 packages:
-  - 'src/mcp-client'
-  - 'src/mcp-server'
+  - 'packages/explorer'
+  - 'packages/playwright-mcp'
+  - 'packages/test-runner'

@@ -1,6 +1,6 @@
-import { Page, expect } from '@playwright/test';
-import fs from 'fs/promises';
-import path from 'path';
+import { expect, type Page } from '@playwright/test';
+import fs from 'node:fs/promises';
+import path from 'node:path';
 
 export async function runScenario(page: Page, scenarioId: string): Promise<void> {
   // 시나리오 JSON 파일 읽기
@@ -30,7 +30,7 @@ export async function runScenario(page: Page, scenarioId: string): Promise<void>
       case 'playwright_screenshot':
         await page.screenshot({
           path: `${action.parameters.name}.png`,
-          fullPage: action.parameters.fullPage
+          fullPage: action.parameters.fullPage,
         });
         break;
 
@@ -56,12 +56,12 @@ export async function runScenario(page: Page, scenarioId: string): Promise<void>
         const elements = await page.locator(assertion.parameters.selector);
         const count = await elements.count();
         if (assertion.parameters.count.startsWith('>')) {
-          const expected = parseInt(assertion.parameters.count.slice(1));
+          const expected = Number.parseInt(assertion.parameters.count.slice(1));
           expect(count).toBeGreaterThan(expected);
         } else {
-          expect(count).toBe(parseInt(assertion.parameters.count));
+          expect(count).toBe(Number.parseInt(assertion.parameters.count));
         }
         break;
     }
   }
-} 
+}

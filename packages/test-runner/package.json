@@ -12,7 +12,7 @@
     "test:ui": "playwright test --ui-port=9222"
   },
   "dependencies": {
-    "@playwright/test": "^1.42.1"
+    "@playwright/test": "^1.53.0-alpha-2025-06-01"
   },
   "devDependencies": {
     "@types/node": "^20.17.30",

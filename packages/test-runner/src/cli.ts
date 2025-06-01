@@ -1,11 +1,11 @@
-import fs from 'fs/promises';
-import path from 'path';
+import fs from 'node:fs/promises';
+import path from 'node:path';
 import { ScenarioConverter } from './converter/ScenarioConverter';
-import { TestScenario } from './types';
+import type { TestScenario } from './types';
 
 async function main() {
-  const [,, inputFile] = process.argv;
-  
+  const [, , inputFile] = process.argv;
+
   if (!inputFile) {
     console.error('Usage: node cli.js <scenario.json>');
     process.exit(1);
@@ -19,9 +19,9 @@ async function main() {
     // 변환
     const converter = new ScenarioConverter(scenario, {
       outputDir: 'tests',
-      includeComments: true
+      includeComments: true,
     });
-    
+
     const { testCode, filePath } = await converter.convert();
 
     // 결과 저장
@@ -35,4 +35,4 @@ async function main() {
   }
 }
 
-main(); 
+main();

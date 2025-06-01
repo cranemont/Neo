@@ -135,3 +135,6 @@ dist
 /blob-report/
 /playwright/.cache/
 browser-data/
+
+**/*.map
+**/*.js
