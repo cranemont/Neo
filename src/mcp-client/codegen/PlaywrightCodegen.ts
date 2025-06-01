@@ -5,13 +5,12 @@ import { UserMessageType } from '../llm/message/types/UserMessageType.js';
 import { ToolResult } from '../llm/message/user/ToolResult.js';
 import { BaseUserMessage, TextUserMessage, ToolResultUserMessage } from '../llm/message/user/UserMessage.js';
 import { AssertionPrompt } from '../llm/prompt/assertion.js';
-import { CODE_EXTRACTION_PROMPT_V1 } from '../llm/prompt/codegen.js';
 import { CODEGEN_PROMPT_V1 } from '../llm/prompt/explorer.js';
 import type { ExecutionContext } from './ExecutionContext.js';
 import type { UserInput } from './UserInput.js';
 import type { MCPClient } from '../mcp/MCPClient.js';
-import { PlaywrightToolResultSchema } from "../mcp/playwright-mcp/ResponseSchema.js";
-import * as fs from "node:fs";
+import { PlaywrightToolResultSchema } from '../mcp/playwright-mcp/ResponseSchema.js';
+import { ExecutionResult } from './ExecutionResult.js';
 
 export class PlaywrightCodegen {
   constructor(
@@ -74,30 +73,27 @@ export class PlaywrightCodegen {
     }
 
     const assertionResult = await this.createAssertion(queryContext.copy(), context.scenario);
-    fs.writeFileSync('assertion.json', JSON.stringify(assertionResult.messages, null, 2));
-
     const maskedCode = this.extractCodeFromMessages(queryContext.messages);
-    const extractedCode = await this.extractCode(queryContext.copy(), context.scenario, maskedCode);
-    fs.writeFileSync('extracted-code.json', JSON.stringify(extractedCode.messages, null, 2));
-
     const code = this.unmaskSensitiveData(maskedCode, context.userInputs);
-    fs.writeFileSync(`test-${context.scenario}.ts`, this.makeCodeSnippet(code, context.scenario));
+
+    if (assertionResult.isFulfilled) {
+      return ExecutionResult.ofSuccess(
+        context.id,
+        context,
+        assertionResult.explanation,
+        code,
+        assertionResult.assertion,
+      );
+    }
+
+    return ExecutionResult.ofFailure(context.id, context, assertionResult.explanation, code, assertionResult.assertion);
   }
 
   private async createAssertion(context: QueryContext, scenario: string) {
     context.addUserMessage(new TextUserMessage(AssertionPrompt.generate(scenario)));
 
-    return await this.llmClient.query(context);
-  }
-
-  private async extractCode(context: QueryContext, scenario: string, code: string) {
-    context.addUserMessage(new TextUserMessage(CODE_EXTRACTION_PROMPT_V1(scenario, code)));
-
-    return await this.llmClient.query(context);
-  }
-
-  private makeCodeSnippet(code: string, scenario: string): string {
-    return `import { test } from '@playwright/test'; \n\ntest('${scenario}', async ({ page }) => {\n${code}\n});`;
+    const response = await this.llmClient.query(context);
+    return AssertionPrompt.parseResponse(response.getSerializedLastMessage());
   }
 
   private extractCodeFromMessages(messages: ConversationMessage[]): string {

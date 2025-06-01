@@ -31,7 +31,9 @@ async function main(
     const codegen = new PlaywrightCodegen(llmClient, new MCPClient(mcp));
     const context = ExecutionContext.init(scenario, baseUrl, inputs);
 
-    await codegen.generate(context);
+    const result = await codegen.generate(context);
+
+    console.log(JSON.stringify(result, null, 2));
   } catch (e) {
     console.log(e);
   } finally {

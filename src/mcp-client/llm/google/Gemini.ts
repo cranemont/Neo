@@ -24,6 +24,7 @@ export class Gemini extends LLMClient<Content[], GenerateContentResponse> {
           model: this._model,
           contents: this.adapter.toRequest(context.messages),
           config: {
+            responseMimeType: responseSchema ? 'application/json' : 'text/plain',
             responseSchema: responseSchema
               ? {
                   type: Type.OBJECT,
