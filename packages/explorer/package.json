@@ -16,9 +16,5 @@
     "js-yaml": "^4.1.0",
     "uuid": "^11.1.0",
     "zod": "^3.25.45"
-  },
-  "devDependencies": {
-    "@types/node": "^22.15.3",
-    "typescript": "^5.8.3"
   }
 }

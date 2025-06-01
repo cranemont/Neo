@@ -2,3 +2,4 @@ packages:
   - 'packages/explorer'
   - 'packages/playwright-mcp'
   - 'packages/test-runner'
+  - 'packages/client-electron'
