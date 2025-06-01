@@ -5,16 +5,141 @@
     <!-- https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP -->
     <meta
             http-equiv="Content-Security-Policy"
-            content="default-src 'self'; script-src 'self'"
+            content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'"
     />
     <meta
             http-equiv="X-Content-Security-Policy"
-            content="default-src 'self'; script-src 'self'"
+            content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'"
     />
-    <title>Hello from Electron renderer!</title>
+    <title>Neo Browser Explorer</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+        }
+        label {
+            display: block;
+            margin-top: 10px;
+            font-weight: bold;
+        }
+        input[type="text"], textarea {
+            width: 100%;
+            padding: 8px;
+            margin-top: 5px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        textarea {
+            height: 100px;
+            resize: vertical;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 15px;
+            margin-top: 10px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        .user-inputs {
+            margin-top: 20px;
+            border: 1px solid #ddd;
+            padding: 10px;
+            border-radius: 4px;
+        }
+        .input-row, .context-row {
+            display: flex;
+            margin-bottom: 10px;
+        }
+        .input-row input, .context-row input {
+            flex: 1;
+            margin-right: 10px;
+        }
+        .input-row button, .context-row button {
+            background-color: #f44336;
+        }
+        .input-row button:hover, .context-row button:hover {
+            background-color: #d32f2f;
+        }
+        .results {
+            margin-top: 20px;
+            border: 1px solid #ddd;
+            padding: 10px;
+            border-radius: 4px;
+            background-color: #f9f9f9;
+        }
+        .success {
+            color: #4CAF50;
+        }
+        .failure {
+            color: #f44336;
+        }
+        pre {
+            background-color: #f1f1f1;
+            padding: 10px;
+            border-radius: 4px;
+            overflow-x: auto;
+        }
+    </style>
 </head>
 <body>
-<h1>Hello from Electron renderer!</h1>
-<p>👋</p>
+    <div class="container">
+        <h1>Neo Browser Explorer</h1>
+
+        <div id="execution-form">
+            <label for="scenario">Test Scenario:</label>
+            <textarea id="scenario" placeholder="Describe the test scenario..."></textarea>
+
+            <label for="baseUrl">Base URL:</label>
+            <input type="text" id="baseUrl" placeholder="https://example.com">
+
+            <div class="user-inputs">
+                <h3>User Inputs</h3>
+                <div id="inputs-container"></div>
+                <button id="add-input">Add Input</button>
+            </div>
+
+            <div class="user-inputs">
+                <h3>Domain Context</h3>
+                <div id="domain-context-container"></div>
+                <button id="add-domain-context">Add Domain Context</button>
+            </div>
+
+            <label for="apiKey">API Key:</label>
+            <input type="text" id="apiKey" placeholder="Your LLM API key">
+
+            <button id="run-test">Run Test</button>
+        </div>
+
+        <div class="results" id="results-container" style="display: none;">
+            <h2>Test Results</h2>
+            <div id="result-status"></div>
+            <div id="result-description"></div>
+            <h3>Playwright Code:</h3>
+            <pre id="playwright-code"></pre>
+            <h3>Assertion:</h3>
+            <pre id="playwright-assertion"></pre>
+        </div>
+    </div>
+
+    <script src="../dist/renderer.js" type="module"></script>
 </body>
 </html>

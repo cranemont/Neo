@@ -19,6 +19,10 @@ importers:
         version: 5.8.3
 
   packages/client-electron:
+    dependencies:
+      explorer:
+        specifier: workspace:*
+        version: link:../explorer
     devDependencies:
       electron:
         specifier: ^36.3.2

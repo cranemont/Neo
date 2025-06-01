@@ -81,7 +81,7 @@ export class PlaywrightCodegen {
         context.id,
         context,
         assertionResult.explanation,
-        code,
+        code.split('\n'),
         assertionResult.assertion,
       );
     }
