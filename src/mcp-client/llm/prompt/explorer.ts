@@ -4,6 +4,7 @@ export const CODEGEN_PROMPT_V1 = (
   testScenario: string,
   baseUrl: string,
   userInputs: string,
+  domainContext: string,
   wrapper = UserInput.WRAPPER,
 ) => `
 You are an expert QA engineer tasked with testing a web application. 
@@ -19,6 +20,10 @@ ${baseUrl}
 <user_inputs>
 ${userInputs}
 </user_inputs>
+
+<domain_context>
+${domainContext}
+</domain_context>
 
 <test_scenario>
 ${testScenario}

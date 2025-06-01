@@ -3,8 +3,9 @@ import { StdioClientTransport } from '@modelcontextprotocol/sdk/client/stdio.js'
 import { program } from 'commander';
 import { UserInput } from './codegen/UserInput.js';
 import { PlaywrightCodegen } from './codegen/PlaywrightCodegen.js';
-import { ScenarioContext } from './codegen/ScenarioContext.js';
-import { Gemini } from "./llm/google/Gemini.js";
+import { Gemini } from './llm/google/Gemini.js';
+import { ExecutionContext } from './codegen/ExecutionContext.js';
+import { MCPClient } from "./mcp/MCPClient.js";
 
 async function main(
   maxAttempts: number,
@@ -14,29 +15,31 @@ async function main(
   apiKey: string,
   mcpServer: string,
 ) {
-  let mcpClient: Client;
+  let mcp: Client;
 
   try {
     // const llmClient = new Claude(apiKey);
     const llmClient = new Gemini(apiKey);
 
-    mcpClient = new Client({ name: 'playwright-codegen', version: '1.0.0' });
+    mcp = new Client({ name: 'playwright-codegen', version: '1.0.0' });
     const transport = new StdioClientTransport({
       command: process.execPath,
       args: [mcpServer],
     });
-    await mcpClient.connect(transport);
+    await mcp.connect(transport);
 
-    const codegen = new PlaywrightCodegen(llmClient, mcpClient);
-    const context = new ScenarioContext(scenario, baseUrl, inputs);
+    const codegen = new PlaywrightCodegen(llmClient, new MCPClient(mcp));
+    const context = ExecutionContext.init(scenario, baseUrl, inputs);
 
-    await codegen.generate(context);
+    const result = await codegen.generate(context);
+
+    console.log(JSON.stringify(result, null, 2));
   } catch (e) {
     console.log(e);
   } finally {
     // @ts-ignore
-    if (mcpClient) {
-      await mcpClient.close();
+    if (mcp) {
+      await mcp.close();
     }
     process.exit(0);
   }

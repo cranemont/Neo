@@ -1,18 +1,13 @@
 import type { UserMessage } from './message/user/UserMessage.js';
 import type { LLMResponse } from './message/assistant/LLMResponse.js';
 import type { ConversationMessage } from './message/types/ConversationMessage.js';
-
-interface ToolSchema {
-  name: string;
-  description: string;
-  inputSchema: unknown;
-}
+import type { ToolSchemaType } from "../mcp/MCPClient.js";
 
 export class QueryContext {
   private readonly _messages: ConversationMessage[];
-  private readonly _tools: ToolSchema[];
+  private readonly _tools: ToolSchemaType[];
 
-  constructor(initialMessages: ConversationMessage[] = [], tools: ToolSchema[] = []) {
+  constructor(initialMessages: ConversationMessage[] = [], tools: ToolSchemaType[] = []) {
     this._messages = [...initialMessages];
     this._tools = tools;
   }
@@ -35,7 +30,7 @@ export class QueryContext {
     return this._messages;
   }
 
-  get tools(): ToolSchema[] {
+  get tools(): ToolSchemaType[] {
     return this._tools;
   }
 }

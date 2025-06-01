@@ -5,6 +5,7 @@ import type { QueryContext } from '../QueryContext.js';
 import type { LLMResponse } from '../message/assistant/LLMResponse.js';
 import { LLMClient } from '../LLMClient.js';
 import { ClaudeAdapter } from './ClaudeAdapter.js';
+import type { z } from "zod";
 
 export class Claude extends LLMClient<MessageParam[], Message> {
   private _client: Anthropic;
@@ -17,7 +18,7 @@ export class Claude extends LLMClient<MessageParam[], Message> {
     this._client = new Anthropic({ apiKey });
   }
 
-  async query(context: QueryContext, retries = this._maxRetries): Promise<LLMResponse> {
+  async query(context: QueryContext, responseSchema?: z.ZodType, retries = this._maxRetries): Promise<LLMResponse> {
     try {
       const response = await this._client.messages
         .create({

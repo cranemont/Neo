@@ -62,4 +62,29 @@ export class LLMResponse {
   get toolUse(): ToolUse | undefined {
     return this._toolUse;
   }
+
+  getSerializedLastMessage() {
+    if (this._messages.length === 0) {
+      return '';
+    }
+
+    const lastMessage = this._messages[this._messages.length - 1];
+    if (!lastMessage.isOfType(AssistantMessageType.TEXT)) {
+      return '';
+    }
+
+    const text = lastMessage.text;
+
+    const jsonMatch = text.match(/```json\n([\s\S]*?)\n```/);
+    if (jsonMatch?.[1]) {
+      try {
+        return JSON.parse(jsonMatch[1]);
+      } catch (e) {
+        console.error('Failed to parse JSON from last message:', e);
+        throw e;
+      }
+    }
+
+    return JSON.parse(text);
+  }
 }
