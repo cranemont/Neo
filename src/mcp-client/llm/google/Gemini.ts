@@ -1,9 +1,10 @@
 import { LLMClient } from '../LLMClient.js';
 import type { LLMResponse } from '../message/assistant/LLMResponse.js';
 import type { QueryContext } from '../QueryContext.js';
-import { type Content, type GenerateContentResponse, GoogleGenAI, type Schema } from '@google/genai';
+import { type Content, type GenerateContentResponse, GoogleGenAI, type Schema, Type } from '@google/genai';
 import { LLMResponseType } from '../message/types/LLMResponseType.js';
 import { GeminiAdapter } from './GeminiAdapter.js';
+import { z } from 'zod';
 
 export class Gemini extends LLMClient<Content[], GenerateContentResponse> {
   private _client: GoogleGenAI;
@@ -15,7 +16,7 @@ export class Gemini extends LLMClient<Content[], GenerateContentResponse> {
     this._client = new GoogleGenAI({ apiKey });
   }
 
-  async query(context: QueryContext, retries = this._maxRetries): Promise<LLMResponse> {
+  async query(context: QueryContext, responseSchema?: z.ZodType, retries = this._maxRetries): Promise<LLMResponse> {
     try {
       console.log('calling gemini...');
       const response = await this._client.models
@@ -23,6 +24,12 @@ export class Gemini extends LLMClient<Content[], GenerateContentResponse> {
           model: this._model,
           contents: this.adapter.toRequest(context.messages),
           config: {
+            responseSchema: responseSchema
+              ? {
+                  type: Type.OBJECT,
+                  properties: responseSchema instanceof z.ZodObject ? responseSchema.shape : {},
+                }
+              : {},
             temperature: 0,
             tools: [
               {

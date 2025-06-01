@@ -1,30 +1,22 @@
-import type { Client } from '@modelcontextprotocol/sdk/client/index.js';
-import { CODEGEN_PROMPT_V1 } from '../llm/prompt/explorer.js';
-import fs from 'node:fs';
-import type { UserInput } from './UserInput.js';
 import type { LLMClient } from '../llm/LLMClient.js';
 import { QueryContext } from '../llm/QueryContext.js';
-import { BaseUserMessage, TextUserMessage, ToolResultUserMessage } from '../llm/message/user/UserMessage.js';
-import { ToolResult } from '../llm/message/user/ToolResult.js';
 import type { ConversationMessage } from '../llm/message/types/ConversationMessage.js';
 import { UserMessageType } from '../llm/message/types/UserMessageType.js';
-import { ASSERTION_PROMPT_V1 } from '../llm/prompt/assertion.js';
-import { CODE_EXTRACTION_PROMPT_V1 } from "../llm/prompt/codegen.js";
-import type { ExecutionContext } from "./ExecutionContext.js";
-
-type PlaywrightMcpToolResult = {
-  content: [
-    {
-      type: 'text';
-      text: string;
-    },
-  ];
-};
+import { ToolResult } from '../llm/message/user/ToolResult.js';
+import { BaseUserMessage, TextUserMessage, ToolResultUserMessage } from '../llm/message/user/UserMessage.js';
+import { AssertionPrompt } from '../llm/prompt/assertion.js';
+import { CODE_EXTRACTION_PROMPT_V1 } from '../llm/prompt/codegen.js';
+import { CODEGEN_PROMPT_V1 } from '../llm/prompt/explorer.js';
+import type { ExecutionContext } from './ExecutionContext.js';
+import type { UserInput } from './UserInput.js';
+import type { MCPClient } from '../mcp/MCPClient.js';
+import { PlaywrightToolResultSchema } from "../mcp/playwright-mcp/ResponseSchema.js";
+import * as fs from "node:fs";
 
 export class PlaywrightCodegen {
   constructor(
     private readonly llmClient: LLMClient,
-    private readonly mcp: Client,
+    private readonly mcpClient: MCPClient,
   ) {}
 
   async generate(context: ExecutionContext) {
@@ -35,9 +27,8 @@ export class PlaywrightCodegen {
       JSON.stringify(context.domainContext),
     );
 
-    const tools = await this.mcp.listTools();
-
-    const queryContext = new QueryContext([new TextUserMessage(codegenPrompt)], tools.tools);
+    const tools = await this.mcpClient.listTools();
+    const queryContext = new QueryContext([new TextUserMessage(codegenPrompt)], tools);
 
     let attempts = 0;
     const isSuccess = false;
@@ -60,10 +51,11 @@ export class PlaywrightCodegen {
 
         try {
           console.log('Calling tool:', toolUse);
-          const toolResult = (await this.mcp.callTool({
-            name: toolUse.name,
-            arguments: this.unmaskSensitiveData(toolUse.input, context.userInputs),
-          })) as PlaywrightMcpToolResult;
+          const toolResult = await this.mcpClient.callTool(
+            toolUse.name,
+            this.unmaskSensitiveData(toolUse.input, context.userInputs),
+            PlaywrightToolResultSchema,
+          );
 
           toolResult.content = this.maskSensitiveData(toolResult.content, context.userInputs);
 
@@ -83,7 +75,6 @@ export class PlaywrightCodegen {
 
     const assertionResult = await this.createAssertion(queryContext.copy(), context.scenario);
     fs.writeFileSync('assertion.json', JSON.stringify(assertionResult.messages, null, 2));
-    // TODO: assertion 확인 후 실패인 경우 에러처리
 
     const maskedCode = this.extractCodeFromMessages(queryContext.messages);
     const extractedCode = await this.extractCode(queryContext.copy(), context.scenario, maskedCode);
@@ -94,7 +85,7 @@ export class PlaywrightCodegen {
   }
 
   private async createAssertion(context: QueryContext, scenario: string) {
-    context.addUserMessage(new TextUserMessage(ASSERTION_PROMPT_V1(scenario)));
+    context.addUserMessage(new TextUserMessage(AssertionPrompt.generate(scenario)));
 
     return await this.llmClient.query(context);
   }
@@ -113,7 +104,7 @@ export class PlaywrightCodegen {
     return messages
       .filter((message) => message instanceof BaseUserMessage && message.isOfType(UserMessageType.TOOL_RESULT))
       .map((message) => {
-        const toolResult = message.toolResult as unknown as PlaywrightMcpToolResult;
+        const toolResult = message.toolResult as { content: { text: string }[] };
         const code = toolResult.content[0].text.match(/```js\n([\s\S]*?)\n```/);
         if (code?.[1]) {
           return code[1].trim();
@@ -126,7 +117,7 @@ export class PlaywrightCodegen {
   private removeSnapshotFromPastMessages(messages: ConversationMessage[]): ConversationMessage[] {
     return messages.map((message) => {
       if (message instanceof BaseUserMessage && message.isOfType(UserMessageType.TOOL_RESULT)) {
-        const originalToolResult = message.toolResult as unknown as PlaywrightMcpToolResult;
+        const originalToolResult = message.toolResult as { content: { text: string }[] };
 
         originalToolResult.content[0].text = originalToolResult.content[0].text.replace(
           /- Page Snapshot\s*\n```yaml\n[\s\S]*?\n```/g,

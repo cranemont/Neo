@@ -18,7 +18,8 @@
     "js-joda": "^1.11.0",
     "js-yaml": "^4.1.0",
     "uuid": "^11.1.0",
-    "yaml": "^2.8.0"
+    "yaml": "^2.8.0",
+    "zod": "^3.25.45"
   },
   "devDependencies": {
     "@types/node": "^22.15.3",
