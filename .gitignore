@@ -137,4 +137,4 @@ dist
 browser-data/
 
 **/*.map
-**/*.js
+**/*.*.js
