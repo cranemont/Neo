@@ -17,7 +17,7 @@ interface TestData {
     description: string;
   }[];
   apiKey: string;
-  domainContext: Record<string, string>;
+  domainContext: string[];
 }
 
 const createWindow = () => {
@@ -67,7 +67,7 @@ async function runTest(testData: TestData): Promise<TestResult> {
         '--api-key',
         testData.apiKey,
         ...testData.userInputs.flatMap((input) => ['--input', `${input.key},${input.value},${input.description}`]),
-        ...Object.entries(testData.domainContext).flatMap(([key, value]) => ['--domain-context', `${key},${value}`]),
+        ...testData.domainContext.flatMap((context) => ['--domain-context', context]),
       ]);
 
       let stdoutData = '';

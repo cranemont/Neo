@@ -112,14 +112,9 @@ function getUserInputs() {
 }
 
 // Add a new domain context row
-function addDomainContextRow(key = '', value = '') {
+function addDomainContextRow(value = '') {
   const contextRow = document.createElement('div');
   contextRow.className = 'context-row';
-
-  const keyInput = document.createElement('input');
-  keyInput.type = 'text';
-  keyInput.placeholder = 'Key';
-  keyInput.value = key;
 
   const valueInput = document.createElement('input');
   valueInput.type = 'text';
@@ -132,7 +127,6 @@ function addDomainContextRow(key = '', value = '') {
     contextRow.remove();
   });
 
-  contextRow.appendChild(keyInput);
   contextRow.appendChild(valueInput);
   contextRow.appendChild(removeButton);
 
@@ -141,16 +135,11 @@ function addDomainContextRow(key = '', value = '') {
 
 // Get all domain context from the form
 function getDomainContext() {
-  const context = {};
+  const context: string[] = [];
   const contextRows = domainContextContainer.querySelectorAll('.context-row');
 
   for (const row of contextRows) {
-    const keyInput = row.querySelector('input:nth-child(1)');
-    const valueInput = row.querySelector('input:nth-child(2)');
-
-    if (keyInput.value && valueInput.value) {
-      context[keyInput.value] = valueInput.value;
-    }
+    context.push(row.querySelector('input')?.value ?? '');
   }
 
   return context;

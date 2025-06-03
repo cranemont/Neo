@@ -7,7 +7,14 @@ import { Gemini } from './llm/google/Gemini.js';
 import { ExecutionContext } from './codegen/ExecutionContext.js';
 import { MCPClient } from './mcp/MCPClient.js';
 
-async function main(maxAttempts: number, scenario: string, baseUrl: string, inputs: UserInput[], apiKey: string, domainContext: Record<string, string> = {}) {
+async function main(
+  maxAttempts: number,
+  scenario: string,
+  baseUrl: string,
+  inputs: UserInput[],
+  apiKey: string,
+  domainContext: string[],
+) {
   let mcp: Client;
 
   try {
@@ -53,17 +60,14 @@ program
         })
       : [];
 
-    const domainContext: Record<string, string> = {};
-    if (options.domainContext) {
-      for (const context of options.domainContext) {
-        const [key, value] = context.split(',');
-        if (key && value) {
-          domainContext[key] = value;
-        }
-      }
-    }
-
-    await main(Number(options.maxAttempts), options.scenario, options.url, inputs, options.apiKey, domainContext);
+    await main(
+      Number(options.maxAttempts),
+      options.scenario,
+      options.url,
+      inputs,
+      options.apiKey,
+      options.domainContext ?? [],
+    );
   });
 
 program.parse();

@@ -23,7 +23,7 @@ export class PlaywrightCodegen {
       context.scenario,
       context.baseUrl,
       JSON.stringify(context.userInputs.map((input) => input.keyWithDescription)),
-      JSON.stringify(context.domainContext),
+      context.domainContext.join('\n'),
     );
 
     const tools = await this.mcpClient.listTools();
