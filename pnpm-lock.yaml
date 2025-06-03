@@ -7,6 +7,10 @@ settings:
 importers:
 
   .:
+    dependencies:
+      '@playwright/test':
+        specifier: ^1.53.0-alpha-2025-06-01
+        version: 1.53.0-alpha-2025-06-01
     devDependencies:
       '@biomejs/biome':
         specifier: 1.9.4
@@ -62,10 +66,6 @@ importers:
         version: 0.0.26(zod@3.25.46)
 
   packages/test-runner:
-    dependencies:
-      '@playwright/test':
-        specifier: ^1.53.0-alpha-2025-06-01
-        version: 1.53.0-alpha-2025-06-01
     devDependencies:
       ts-node:
         specifier: ^10.9.2
