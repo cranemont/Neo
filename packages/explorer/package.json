@@ -6,7 +6,8 @@
   "type": "module",
   "scripts": {
     "build": "tsc",
-    "start": "node dist/main.js"
+    "explore": "node dist/main.js explore",
+    "record": "node dist/main.js record"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "0.52.0",

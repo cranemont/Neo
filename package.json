@@ -8,7 +8,8 @@
     "format": "biome format --write ./",
     "lint": "biome check --write ./",
     "build": "pnpm -r build",
-    "start:explorer": "pnpm build && pnpm --filter explorer start",
+    "start:explore": "pnpm build && pnpm --filter explorer explore",
+    "start:record": "pnpm build && pnpm --filter explorer record",
     "start:client": "pnpm build && pnpm --filter client-electron start"
   },
   "keywords": [],
