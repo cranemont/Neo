@@ -2,6 +2,7 @@ import { app, BrowserWindow, ipcMain } from 'electron';
 import { spawn } from 'node:child_process';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import fs from 'node:fs/promises';
 
 // ES Module equivalent for __dirname
 const __filename = fileURLToPath(import.meta.url);
@@ -120,6 +121,18 @@ app.whenReady().then(() => {
       return await runTest(testData);
     } catch (error) {
       console.error('Error in run-test handler:', error);
+      throw error;
+    }
+  });
+
+  // Register IPC handler for clearing browser cache
+  ipcMain.handle('clear-browser-cache', async () => {
+    try {
+      const browserDataPath = path.join(process.cwd(), 'browser-data');
+      await fs.rm(browserDataPath, { recursive: true, force: true });
+      return { success: true };
+    } catch (error) {
+      console.error('Error clearing browser cache:', error);
       throw error;
     }
   });

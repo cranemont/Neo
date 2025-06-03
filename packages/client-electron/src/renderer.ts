@@ -18,6 +18,8 @@ const addDomainContextButton = document.getElementById('add-domain-context');
 console.log('addDomainContextButton:', addDomainContextButton);
 const runTestButton = document.getElementById('run-test');
 console.log('runTestButton:', runTestButton);
+const clearCacheButton = document.getElementById('clear-cache');
+console.log('clearCacheButton:', clearCacheButton);
 const resultsContainer = document.getElementById('results-container');
 console.log('resultsContainer:', resultsContainer);
 const resultStatus = document.getElementById('result-status');
@@ -215,6 +217,22 @@ document.addEventListener('DOMContentLoaded', () => {
     } finally {
       runTestButton.disabled = false;
       runTestButton.textContent = 'Run Test';
+    }
+  });
+
+  // Clear cache button
+  clearCacheButton.addEventListener('click', async () => {
+    try {
+      clearCacheButton.disabled = true;
+      clearCacheButton.textContent = 'Clearing...';
+      await window.apiserver.clearBrowserCache();
+      alert('Browser cache cleared successfully!');
+    } catch (error) {
+      console.error('Error clearing browser cache:', error);
+      alert('Error clearing browser cache. Check the console for details.');
+    } finally {
+      clearCacheButton.disabled = false;
+      clearCacheButton.textContent = 'Clear Browser Cache';
     }
   });
 });

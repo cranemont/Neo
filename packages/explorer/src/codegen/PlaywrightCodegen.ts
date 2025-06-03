@@ -32,7 +32,7 @@ export class PlaywrightCodegen {
     let attempts = 0;
     const isSuccess = false;
 
-    while (!isSuccess && attempts < 30) {
+    while (!isSuccess && attempts < 50) {
       attempts += 1;
       console.log(`Attempt ${attempts} of ${context.scenario}`);
 

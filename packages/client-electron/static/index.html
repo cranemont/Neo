@@ -11,7 +11,7 @@
             http-equiv="X-Content-Security-Policy"
             content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'"
     />
-    <title>Neo Browser Explorer</title>
+    <title>QA Agent</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -102,7 +102,7 @@
 </head>
 <body>
     <div class="container">
-        <h1>Neo Browser Explorer</h1>
+        <h1>QA Agent</h1>
 
         <div id="execution-form">
             <label for="scenario">Test Scenario:</label>
@@ -126,7 +126,10 @@
             <label for="apiKey">API Key:</label>
             <input type="text" id="apiKey" placeholder="Your LLM API key">
 
-            <button id="run-test">Run Test</button>
+            <div style="display: flex; gap: 10px;">
+                <button id="run-test">Run Test</button>
+                <button id="clear-cache" style="background-color: #f44336;">Clear Browser Cache</button>
+            </div>
         </div>
 
         <div class="results" id="results-container" style="display: none;">
