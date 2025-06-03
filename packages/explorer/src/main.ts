@@ -14,6 +14,7 @@ async function main(
   inputs: UserInput[],
   apiKey: string,
   domainContext: string[],
+  precondition: string,
 ) {
   let mcp: Client;
 
@@ -25,6 +26,10 @@ async function main(
     const transport = new StdioClientTransport({
       command: process.execPath,
       args: ['../playwright-mcp/dist/server.js'],
+      env: {
+        ...process.env,
+        PRECONDITION_NAME: precondition,
+      },
     });
     await mcp.connect(transport);
 
@@ -52,6 +57,7 @@ program
   .option('--domain-context, -d <domainContext...>', 'domain context')
   .option('--max-attempts -m <maxAttempts>', 'maximum number of attempts to reach the final state')
   .option('--api-key, -k <apiKey>', 'API key for the LLM')
+  .option('--precondition, -p <precondition>', 'precondition file name to run before scenario')
   .action(async (options) => {
     const inputs = options.input
       ? options.input.map((input) => {
@@ -67,6 +73,7 @@ program
       inputs,
       options.apiKey,
       options.domainContext ?? [],
+      options.precondition,
     );
   });
 
