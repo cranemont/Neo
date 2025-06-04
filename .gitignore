@@ -138,3 +138,5 @@ browser-data/
 
 **/*.map
 **/*.*.js
+
+traces/

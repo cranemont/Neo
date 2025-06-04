@@ -16,7 +16,9 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@playwright/test": "^1.53.0-alpha-2025-06-01"
+    "@playwright/test": "^1.53.0-alpha-2025-06-01",
+    "playwright": "1.53.0-alpha-2025-05-27",
+    "commander": "^13.1.0"
   },
   "devDependencies": {
     "@biomejs/biome": "1.9.4",

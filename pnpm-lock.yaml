@@ -10,7 +10,13 @@ importers:
     dependencies:
       '@playwright/test':
         specifier: ^1.53.0-alpha-2025-06-01
-        version: 1.53.0-alpha-2025-06-01
+        version: 1.53.0-alpha-2025-06-04
+      commander:
+        specifier: ^13.1.0
+        version: 13.1.0
+      playwright:
+        specifier: 1.53.0-alpha-2025-05-27
+        version: 1.53.0-alpha-2025-05-27
     devDependencies:
       '@biomejs/biome':
         specifier: 1.9.4
@@ -30,7 +36,7 @@ importers:
     devDependencies:
       electron:
         specifier: ^36.3.2
-        version: 36.3.2
+        version: 36.4.0
 
   packages/explorer:
     dependencies:
@@ -43,9 +49,6 @@ importers:
       '@modelcontextprotocol/sdk':
         specifier: 1.12.0
         version: 1.12.0
-      commander:
-        specifier: ^13.1.0
-        version: 13.1.0
       js-yaml:
         specifier: ^4.1.0
         version: 4.1.0
@@ -54,7 +57,7 @@ importers:
         version: 11.1.0
       zod:
         specifier: ^3.25.45
-        version: 3.25.46
+        version: 3.25.51
 
   packages/playwright-mcp:
     dependencies:
@@ -62,8 +65,8 @@ importers:
         specifier: 1.10.2
         version: 1.10.2
       '@playwright/mcp':
-        specifier: 0.0.26
-        version: 0.0.26(zod@3.25.46)
+        specifier: 0.0.28
+        version: 0.0.28(zod@3.25.51)
 
   packages/test-runner:
     devDependencies:
@@ -162,13 +165,17 @@ packages:
     resolution: {integrity: sha512-m//7RlINx1F3sz3KqwY1WWzVgTcYX52HYk4bJ1hkBXV3zccAEth+jRvG8DBRrdaQuRsPAJOx2MH3zaHNCKL7Zg==}
     engines: {node: '>=18'}
 
-  '@playwright/mcp@0.0.26':
-    resolution: {integrity: sha512-xVUBnXwGiHMOGvBg0wri5cfLAZxS6ThI3SWACZQYoIJ/R51JgpTQYtUCMTrg9lhY7BVgdwwn1hCRN4+DW5F1Yg==}
+  '@modelcontextprotocol/sdk@1.12.1':
+    resolution: {integrity: sha512-KG1CZhZfWg+u8pxeM/mByJDScJSrjjxLc8fwQqbsS8xCjBmQfMNEBTotYdNanKekepnfRI85GtgQlctLFpcYPw==}
+    engines: {node: '>=18'}
+
+  '@playwright/mcp@0.0.28':
+    resolution: {integrity: sha512-PiF8/rPgWM1cptXbRri+m++QVIY4wpMHgKgRQjfzYeb08ORrV2GgdKdI2nlPy9nGFyMGFTA+jc4dDHM/x/7s0A==}
     engines: {node: '>=18'}
     hasBin: true
 
-  '@playwright/test@1.53.0-alpha-2025-06-01':
-    resolution: {integrity: sha512-b17j1AKuTsdISPaOEszwvzUbrruO7osgjo1A4ewJxd6zCiJWX6nzu0VIZMaT6wb8s9nc56cgs6g4G1Jn5OUZVw==}
+  '@playwright/test@1.53.0-alpha-2025-06-04':
+    resolution: {integrity: sha512-1qMkOy5rGHsEvpB8XZD2khBPJozrLdK92P0xzJhpQsQmppDfzBk/12pLRAw7TMu9qFsmQuGjhAKJGE0DYhnMmw==}
     engines: {node: '>=18'}
     hasBin: true
 
@@ -356,8 +363,8 @@ packages:
   ee-first@1.1.1:
     resolution: {integrity: sha512-WMwm9LhRUo+WUaRN+vRuETqG89IgZphVSNkdFgeb6sS/E4OrDIN7t48CAewSHXc6C8lefD8KKfr5vY61brQlow==}
 
-  electron@36.3.2:
-    resolution: {integrity: sha512-v0/j7n22CL3OYv9BIhq6JJz2+e1HmY9H4bjTk8/WzVT9JwVX/T/21YNdR7xuQ6XDSEo9gP5JnqmjOamE+CUY8Q==}
+  electron@36.4.0:
+    resolution: {integrity: sha512-LLOOZEuW5oqvnjC7HBQhIqjIIJAZCIFjQxltQGLfEC7XFsBoZgQ3u3iFj+Kzw68Xj97u1n57Jdt7P98qLvUibQ==}
     engines: {node: '>= 12.20.55'}
     hasBin: true
 
@@ -684,23 +691,23 @@ packages:
     resolution: {integrity: sha512-ueGLflrrnvwB3xuo/uGob5pd5FN7l0MsLf0Z87o/UQmRtwjvfylfc9MurIxRAWywCYTgrvpXBcqjV4OfCYGCIQ==}
     engines: {node: '>=16.20.0'}
 
-  playwright-core@1.53.0-alpha-1746832516000:
-    resolution: {integrity: sha512-4O98y4zV0rOP6CepMLC/VGuzqGaR1sS9AVh+i0CghWMQHM/8bxPJI8W38QndO0JU0V5nBD6j7DQeNt1mJ+CZ+g==}
+  playwright-core@1.53.0-alpha-2025-05-27:
+    resolution: {integrity: sha512-uVxs7YjENoBMFyQhsZWImIBuo/oX7Mu63djhQN3qFz/NdXA/rOAnP73XzfB+VJNwRMKgIOtqHQgjOG3Rl/lm0A==}
     engines: {node: '>=18'}
     hasBin: true
 
-  playwright-core@1.53.0-alpha-2025-06-01:
-    resolution: {integrity: sha512-49q1JIGdZkitv7T6BG+jlwxs8ovnkZvnnhp+0fyv8m/FEbqGIjSMRsb1tojdgFRN4kuWXhicXHMk8I5IGMeAmg==}
+  playwright-core@1.53.0-alpha-2025-06-04:
+    resolution: {integrity: sha512-u+CTopU7PA4d3sE4IxdBXQzDRgbRkGKl2SebKlIpes0sPWjScKFKctDLLUKp/YDTk/dCwswDypRm/H0qAU5WUg==}
     engines: {node: '>=18'}
     hasBin: true
 
-  playwright@1.53.0-alpha-1746832516000:
-    resolution: {integrity: sha512-kcC1B2XJr4VaDAcVzi61SbYGkodq1QIqQXuPieXsNgZZ7cEKWzO2sI42yp2yie6wlCx0oLkSS2Q6jWSRVRLeaw==}
+  playwright@1.53.0-alpha-2025-05-27:
+    resolution: {integrity: sha512-CD0BTwV5javEJ3hf3rhFJEvR3ZoWsu4HUQFfLH2mtVVe+grGPCP55FnlOjpDnJ5pP4Kibe/ZcmgPDg56ic/y9g==}
     engines: {node: '>=18'}
     hasBin: true
 
-  playwright@1.53.0-alpha-2025-06-01:
-    resolution: {integrity: sha512-kFv4B1x5DYUHvyIPSkFE5kzE7eWSB7+uH1yAwLBhMg5lQ5hKionrM4E1Q/EAVgIVY4LZlao25coWwTPYMX2hQw==}
+  playwright@1.53.0-alpha-2025-06-04:
+    resolution: {integrity: sha512-tmYbUtZKW3/ojfLkdMN0mIj+MoOlEHvOEe/tzUG9qpgNKlTEY1z9yxXxSckaV7hMYpoO3yXKcGWbyGKB+bP2oA==}
     engines: {node: '>=18'}
     hasBin: true
 
@@ -921,6 +928,9 @@ packages:
   zod@3.25.46:
     resolution: {integrity: sha512-IqRxcHEIjqLd4LNS/zKffB3Jzg3NwqJxQQ0Ns7pdrvgGkwQsEBdEQcOHaBVqvvZArShRzI39+aMST3FBGmTrLQ==}
 
+  zod@3.25.51:
+    resolution: {integrity: sha512-TQSnBldh+XSGL+opiSIq0575wvDPqu09AqWe1F7JhUMKY+M91/aGlK4MhpVNO7MgYfHcVCB1ffwAUTJzllKJqg==}
+
 snapshots:
 
   '@anthropic-ai/sdk@0.52.0': {}
@@ -983,8 +993,8 @@ snapshots:
       '@modelcontextprotocol/sdk': 1.12.0
       google-auth-library: 9.15.1
       ws: 8.18.2
-      zod: 3.25.46
-      zod-to-json-schema: 3.24.5(zod@3.25.46)
+      zod: 3.25.51
+      zod-to-json-schema: 3.24.5(zod@3.25.51)
     transitivePeerDependencies:
       - bufferutil
       - encoding
@@ -1026,24 +1036,41 @@ snapshots:
       express-rate-limit: 7.5.0(express@5.1.0)
       pkce-challenge: 5.0.0
       raw-body: 3.0.0
-      zod: 3.25.46
-      zod-to-json-schema: 3.24.5(zod@3.25.46)
+      zod: 3.25.51
+      zod-to-json-schema: 3.24.5(zod@3.25.51)
     transitivePeerDependencies:
       - supports-color
 
-  '@playwright/mcp@0.0.26(zod@3.25.46)':
+  '@modelcontextprotocol/sdk@1.12.1':
     dependencies:
-      '@modelcontextprotocol/sdk': 1.12.0
+      ajv: 6.12.6
+      content-type: 1.0.5
+      cors: 2.8.5
+      cross-spawn: 7.0.6
+      eventsource: 3.0.7
+      express: 5.1.0
+      express-rate-limit: 7.5.0(express@5.1.0)
+      pkce-challenge: 5.0.0
+      raw-body: 3.0.0
+      zod: 3.25.51
+      zod-to-json-schema: 3.24.5(zod@3.25.51)
+    transitivePeerDependencies:
+      - supports-color
+
+  '@playwright/mcp@0.0.28(zod@3.25.51)':
+    dependencies:
+      '@modelcontextprotocol/sdk': 1.12.1
       commander: 13.1.0
-      playwright: 1.53.0-alpha-1746832516000
-      zod-to-json-schema: 3.24.5(zod@3.25.46)
+      debug: 4.4.1
+      playwright: 1.53.0-alpha-2025-05-27
+      zod-to-json-schema: 3.24.5(zod@3.25.51)
     transitivePeerDependencies:
       - supports-color
       - zod
 
-  '@playwright/test@1.53.0-alpha-2025-06-01':
+  '@playwright/test@1.53.0-alpha-2025-06-04':
     dependencies:
-      playwright: 1.53.0-alpha-2025-06-01
+      playwright: 1.53.0-alpha-2025-06-04
 
   '@sindresorhus/is@4.6.0': {}
 
@@ -1230,7 +1257,7 @@ snapshots:
 
   ee-first@1.1.1: {}
 
-  electron@36.3.2:
+  electron@36.4.0:
     dependencies:
       '@electron/get': 2.0.3
       '@types/node': 22.15.29
@@ -1593,19 +1620,19 @@ snapshots:
 
   pkce-challenge@5.0.0: {}
 
-  playwright-core@1.53.0-alpha-1746832516000: {}
+  playwright-core@1.53.0-alpha-2025-05-27: {}
 
-  playwright-core@1.53.0-alpha-2025-06-01: {}
+  playwright-core@1.53.0-alpha-2025-06-04: {}
 
-  playwright@1.53.0-alpha-1746832516000:
+  playwright@1.53.0-alpha-2025-05-27:
     dependencies:
-      playwright-core: 1.53.0-alpha-1746832516000
+      playwright-core: 1.53.0-alpha-2025-05-27
     optionalDependencies:
       fsevents: 2.3.2
 
-  playwright@1.53.0-alpha-2025-06-01:
+  playwright@1.53.0-alpha-2025-06-04:
     dependencies:
-      playwright-core: 1.53.0-alpha-2025-06-01
+      playwright-core: 1.53.0-alpha-2025-06-04
     optionalDependencies:
       fsevents: 2.3.2
 
@@ -1830,4 +1857,10 @@ snapshots:
     dependencies:
       zod: 3.25.46
 
+  zod-to-json-schema@3.24.5(zod@3.25.51):
+    dependencies:
+      zod: 3.25.51
+
   zod@3.25.46: {}
+
+  zod@3.25.51: {}
