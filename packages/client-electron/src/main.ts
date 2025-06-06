@@ -61,6 +61,7 @@ async function runTest(testData: TestData): Promise<TestResult> {
       );
       const explorerProcess = spawn('node', [
         path.resolve(process.cwd(), 'node_modules/explorer/dist/main.js'),
+        'explore',
         '--scenario',
         testData.scenario,
         '--url',
