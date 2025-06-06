@@ -1,6 +1,9 @@
 // renderer.ts - Handles UI interactions in the Electron renderer process
 
 // DOM Elements
+
+import type { ExecutionResult } from "explorer";
+
 console.log('Initializing DOM elements');
 const scenarioInput = document.getElementById('scenario');
 console.log('scenarioInput:', scenarioInput);
@@ -148,7 +151,7 @@ function getDomainContext() {
 }
 
 // Display test results
-function displayResults(result) {
+function displayResults(result: ExecutionResult) {
   resultsContainer.style.display = 'block';
 
   // Display status
@@ -209,7 +212,7 @@ document.addEventListener('DOMContentLoaded', () => {
       runTestButton.textContent = 'Running...';
       console.log(window.apiserver);
 
-      const result = await window.apiserver.runTest(testData);
+      const result: ExecutionResult = await window.apiserver.runTest(testData);
       displayResults(result);
     } catch (error) {
       console.error('Error running test:', error);

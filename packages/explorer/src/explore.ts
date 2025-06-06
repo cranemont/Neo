@@ -71,6 +71,7 @@ export async function explore(
     const result = await codegen.generate(context);
 
     console.log(`\`\`\`result\n${JSON.stringify(result)}\n\`\`\``);
+    return result;
   } catch (e) {
     console.log(e);
   } finally {
@@ -78,6 +79,5 @@ export async function explore(
     if (mcp) {
       await mcp.close();
     }
-    process.exit(0);
   }
 }

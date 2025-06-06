@@ -2,12 +2,18 @@
   "name": "explorer",
   "version": "1.0.0",
   "description": "QA Agent",
-  "main": "main.js",
   "type": "module",
   "scripts": {
     "build": "tsc",
-    "explore": "node dist/main.js explore",
-    "record": "node dist/main.js record"
+    "explore": "node dist/program.js explore",
+    "record": "node dist/program.js record"
+  },
+  "exports": {
+    "./package.json": "./package.json",
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
   },
   "dependencies": {
     "@anthropic-ai/sdk": "0.52.0",
