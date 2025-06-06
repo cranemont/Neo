@@ -6,6 +6,7 @@ import type { LLMResponse } from '../message/assistant/LLMResponse.js';
 import { LLMClient } from '../LLMClient.js';
 import { ClaudeAdapter } from './ClaudeAdapter.js';
 import type { z } from "zod";
+import logger from "../../logger.js";
 
 export class Claude extends LLMClient<MessageParam[], Message> {
   private _client: Anthropic;
@@ -36,13 +37,13 @@ export class Claude extends LLMClient<MessageParam[], Message> {
       context.addLLMResponse(response);
 
       if (response.type === LLMResponseType.MAX_TOKENS) {
-        console.warn('Max tokens reached, consider increasing the limit');
+        logger.warn('Max tokens reached, consider increasing the limit');
         return this.retry(context, retries - 1);
       }
 
       return response;
     } catch (error) {
-      console.error('Error sending message to LLM:', error);
+      logger.error('Error sending message to LLM:', error);
       return this.retry(context, retries - 1);
     }
   }

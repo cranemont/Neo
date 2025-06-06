@@ -20,6 +20,7 @@ import { LLMResponse } from '../message/assistant/LLMResponse.js';
 import { ToolUse } from '../message/assistant/ToolUse.js';
 import type { ConversationMessage } from '../message/types/ConversationMessage.js';
 import type { MessageAdaptor } from '../interface/MessageAdaptor.js';
+import logger from "../../logger.js";
 
 export class ClaudeAdapter implements MessageAdaptor<MessageParam[], Message> {
   toResponse(message: Message): LLMResponse {
@@ -28,13 +29,13 @@ export class ClaudeAdapter implements MessageAdaptor<MessageParam[], Message> {
 
     switch (message.stop_reason) {
       case 'end_turn':
-        console.log('End of turn reached');
+        logger.info('End of turn reached');
         return LLMResponse.of(id, messages, message);
       case 'tool_use':
-        console.log('Tool use detected');
+        logger.info('Tool use detected');
         return LLMResponse.ofToolUse(id, messages, message);
       case 'max_tokens':
-        console.log('Max tokens reached');
+        logger.info('Max tokens reached');
         return LLMResponse.ofMaxTokens(id, messages, message);
       default:
         throw new Error(`Unhandled stop reason: ${message.stop_reason}, response: ${message}`);

@@ -1,4 +1,5 @@
 import { Recorder } from './codegen/Recorder.js';
+import logger from './logger.js';
 
 export async function record(options: {
   url: string;
@@ -11,12 +12,23 @@ export async function record(options: {
       options.outputFile ??
       `./preconditions/recording-${new Date().toISOString().replace(/[:.]/g, '-')}.spec.${options.language === 'python' ? 'py' : options.language === 'java' ? 'java' : 'js'}`;
 
-    console.log('Starting recorder...');
-    console.log(`URL: ${options.url}`);
-    console.log(`Output file: ${defaultOutputFile}`);
-    console.log(`Language: ${options.language ?? 'javascript'}`);
-    console.log(`Headless mode: ${options.headless ? 'enabled' : 'disabled'}`);
-    console.log('\nPress Ctrl+C to stop recording\n');
+    // console.log('Starting recorder...');
+    // console.log(`URL: ${options.url}`);
+    // console.log(`Output file: ${defaultOutputFile}`);
+    // console.log(`Language: ${options.language ?? 'javascript'}`);
+    // console.log(`Headless mode: ${options.headless ? 'enabled' : 'disabled'}`);
+    // console.log('\nPress Ctrl+C to stop recording\n');
+
+    logger.info(
+      `Starting recorder..
+      URL: ${options.url}
+      Output file: ${defaultOutputFile}
+      Language: ${options.language ?? 'javascript'}
+      Headless mode: ${options.headless ? 'enabled' : 'disabled'}
+      
+      Press Ctrl+C to stop recording
+      `,
+    );
 
     const { browser, context, page } = await Recorder.startRecording({
       ...options,
@@ -24,12 +36,12 @@ export async function record(options: {
     });
 
     process.on('SIGINT', async () => {
-      console.log('\nStopping recorder...');
+      logger.info('Stopping recorder...');
       await browser.close();
       process.exit(0);
     });
   } catch (e) {
-    console.error('Error:', e);
+    logger.error('Error:', e);
     process.exit(1);
   }
 }

@@ -11,6 +11,7 @@ import { UserMessageType } from '../message/types/UserMessageType.js';
 import { LLMResponse } from '../message/assistant/LLMResponse.js';
 import { ToolUse } from '../message/assistant/ToolUse.js';
 import type { ConversationMessage } from '../message/types/ConversationMessage.js';
+import logger from "../../logger.js";
 
 export class GeminiAdapter implements MessageAdaptor<Content[], GenerateContentResponse> {
   toResponse(response: GenerateContentResponse): LLMResponse {
@@ -37,17 +38,17 @@ export class GeminiAdapter implements MessageAdaptor<Content[], GenerateContentR
         );
       }
 
-      console.log('Tool use detected:', response.functionCalls);
+      logger.info('Tool use detected:', response.functionCalls);
 
       return LLMResponse.ofToolUse(id, messages, response);
     }
 
     switch (candidate.finishReason) {
       case FinishReason.STOP:
-        console.log('End of turn reached');
+        logger.info('End of turn reached');
         return LLMResponse.of(id, messages, response);
       case FinishReason.MAX_TOKENS:
-        console.log('Max tokens reached');
+        logger.info('Max tokens reached');
         return LLMResponse.ofMaxTokens(id, messages, response);
       default:
         throw new Error(`Unhandled finish reason: ${candidate.finishReason}, response: ${JSON.stringify(response)}`);
