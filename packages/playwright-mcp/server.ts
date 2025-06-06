@@ -1,6 +1,7 @@
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
 import { type Connection, createConnection } from '@playwright/mcp';
 import { program } from "commander";
+import logger from './logger.js';
 
 // const preconditionsDir = path.resolve(process.cwd(), '../explorer/preconditions');
 //
@@ -139,7 +140,7 @@ program
     });
 
     const cleanup = async () => {
-      console.error('server stopped');
+      logger.info('Server stopped');
       await server.stop();
       process.exit(0);
     };
@@ -149,9 +150,9 @@ program
 
     try {
       await server.start();
-      console.error('server started');
+      logger.info('Server started');
     } catch (error) {
-      console.error('Error:', error);
+      logger.error('Error starting server:', error);
       await cleanup();
     }
   });

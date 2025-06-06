@@ -5,6 +5,7 @@ import { type Content, type GenerateContentResponse, GoogleGenAI, type Schema, T
 import { LLMResponseType } from '../message/types/LLMResponseType.js';
 import { GeminiAdapter } from './GeminiAdapter.js';
 import { z } from 'zod';
+import logger from "../../logger.js";
 
 export class Gemini extends LLMClient<Content[], GenerateContentResponse> {
   private _client: GoogleGenAI;
@@ -18,7 +19,7 @@ export class Gemini extends LLMClient<Content[], GenerateContentResponse> {
 
   async query(context: QueryContext, responseSchema?: z.ZodType, retries = this._maxRetries): Promise<LLMResponse> {
     try {
-      console.log('calling gemini...');
+      logger.info('calling gemini...');
       const response = await this._client.models
         .generateContent({
           model: this._model,
@@ -48,13 +49,13 @@ export class Gemini extends LLMClient<Content[], GenerateContentResponse> {
       context.addLLMResponse(response);
 
       if (response.type === LLMResponseType.MAX_TOKENS) {
-        console.warn('Max tokens reached, consider increasing the limit');
+        logger.warn('Max tokens reached, consider increasing the limit');
         return this.retry(context, retries - 1);
       }
 
       return response;
     } catch (error) {
-      console.error('Error sending message to LLM:', error);
+      logger.error('Error sending message to LLM:', error);
       return this.retry(context, retries - 1);
     }
   }

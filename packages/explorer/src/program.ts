@@ -2,6 +2,7 @@ import { program } from 'commander';
 import { UserInput } from './codegen/UserInput.js';
 import { record } from './record.js';
 import { explore } from './explore.js';
+import logger from "./logger.js";
 
 program
   .command('record')
@@ -37,7 +38,7 @@ program
         })
       : [];
 
-    console.log(
+    logger.info(
       `Exploring scenario "${options.scenario}" at URL "${options.url}" with inputs: ${JSON.stringify(inputs)}`,
     );
 

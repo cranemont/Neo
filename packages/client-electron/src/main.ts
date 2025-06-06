@@ -5,6 +5,7 @@ import { fileURLToPath } from 'node:url';
 import { createTRPCClient, httpBatchLink } from '@trpc/client';
 import { app, BrowserWindow, ipcMain } from 'electron';
 import type { AppRouter } from 'explorer';
+import logger from './logger.js';
 
 // ES Module equivalent for __dirname
 const __filename = fileURLToPath(import.meta.url);
@@ -74,11 +75,11 @@ async function runTest(testData: TestData) {
         browser: 'chromium',
       },
     });
-    console.log(result);
+    logger.info('Test result:', result);
 
     return result;
   } catch (error) {
-    console.error('Error running test:', error);
+    logger.error('Error running test:', error);
     throw error;
   }
 }
@@ -89,7 +90,7 @@ app.whenReady().then(() => {
     try {
       return await runTest(testData);
     } catch (error) {
-      console.error('Error in run-test handler:', error);
+      logger.error('Error in run-test handler:', error);
       throw error;
     }
   });
@@ -101,7 +102,7 @@ app.whenReady().then(() => {
       await fs.rm(browserDataPath, { recursive: true, force: true });
       return { success: true };
     } catch (error) {
-      console.error('Error clearing browser cache:', error);
+      logger.error('Error clearing browser cache:', error);
       throw error;
     }
   });

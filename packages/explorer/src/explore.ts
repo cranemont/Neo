@@ -5,6 +5,7 @@ import { MCPClient } from './mcp/MCPClient.js';
 import { ExecutionContext } from './codegen/ExecutionContext.js';
 import { Client } from '@modelcontextprotocol/sdk/client/index.js';
 import { StdioClientTransport } from '@modelcontextprotocol/sdk/client/stdio.js';
+import logger from './logger.js';
 
 export async function explore(
   maxAttempts: number,
@@ -70,10 +71,10 @@ export async function explore(
 
     const result = await codegen.generate(context);
 
-    console.log(`\`\`\`result\n${JSON.stringify(result)}\n\`\`\``);
+    logger.info(`Result: ${JSON.stringify(result)}`);
     return result;
   } catch (e) {
-    console.log(e);
+    logger.error('Error during exploration:', e);
   } finally {
     // @ts-ignore
     if (mcp) {

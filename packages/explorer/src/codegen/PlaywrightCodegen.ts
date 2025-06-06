@@ -11,6 +11,7 @@ import type { UserInput } from './UserInput.js';
 import type { MCPClient } from '../mcp/MCPClient.js';
 import { PlaywrightToolResultSchema } from '../mcp/playwright-mcp/ResponseSchema.js';
 import { ExecutionResult } from './ExecutionResult.js';
+import logger from "../logger.js";
 
 export class PlaywrightCodegen {
   constructor(
@@ -34,13 +35,12 @@ export class PlaywrightCodegen {
 
     while (!isSuccess && attempts < 50) {
       attempts += 1;
-      console.log(`Attempt ${attempts} of ${context.scenario}`);
+      logger.info(`Attempt ${attempts} of ${context.scenario}`);
 
       const response = await this.llmClient.query(queryContext);
 
       if (response.isEndTurn()) {
-        console.log('End of turn detected, stopping attempts.');
-        // TODO: check if the response is valid and contains code
+        logger.info('End of turn detected, stopping attempts.');
 
         break;
       }
@@ -49,7 +49,7 @@ export class PlaywrightCodegen {
         const toolUse = response.toolUse;
 
         try {
-          console.log('Calling tool:', toolUse);
+          logger.info('Calling tool:', toolUse);
           const toolResult = await this.mcpClient.callTool(
             toolUse.name,
             this.unmaskSensitiveData(toolUse.input, context.userInputs),
@@ -62,7 +62,7 @@ export class PlaywrightCodegen {
 
           queryContext.addUserMessage(new ToolResultUserMessage(ToolResult.success(toolUse, toolResult.content)));
         } catch (error) {
-          console.error('Error calling tool:', error);
+          logger.error('Error calling tool:', error);
           queryContext.addUserMessage(
             new ToolResultUserMessage(ToolResult.error(toolUse, JSON.stringify({ error: (error as Error).message }))),
           );
@@ -126,7 +126,6 @@ export class PlaywrightCodegen {
 
   private maskSensitiveData(source: unknown, inputs: UserInput[]) {
     let stringifiedSource = JSON.stringify(source);
-    console.log(stringifiedSource.slice(0, 200));
     for (const input of inputs) {
       stringifiedSource = input.mask(stringifiedSource);
     }

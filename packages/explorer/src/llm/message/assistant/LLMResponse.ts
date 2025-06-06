@@ -2,6 +2,7 @@ import { LLMResponseType } from '../types/LLMResponseType.js';
 import type { AssistantMessage } from './AssistantMessage.js';
 import type { ToolUse } from './ToolUse.js';
 import { AssistantMessageType } from '../types/AssistantMessageType.js';
+import logger from "../../../logger.js";
 
 export class LLMResponse {
   private constructor(
@@ -80,7 +81,7 @@ export class LLMResponse {
       try {
         return JSON.parse(jsonMatch[1]);
       } catch (e) {
-        console.error('Failed to parse JSON from last message:', e);
+        logger.error('Failed to parse JSON from last message:', e);
         throw e;
       }
     }
