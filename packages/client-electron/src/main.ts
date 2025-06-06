@@ -5,6 +5,7 @@ import { fileURLToPath } from 'node:url';
 import { createTRPCClient, httpBatchLink } from '@trpc/client';
 import { app, BrowserWindow, ipcMain } from 'electron';
 import type { AppRouter } from 'explorer';
+import { ExecutionResult } from "explorer/dist/index.js"; // ES Module equivalent for __dirname
 
 // ES Module equivalent for __dirname
 const __filename = fileURLToPath(import.meta.url);
@@ -60,17 +61,8 @@ async function createWindow() {
   mainWindow.webContents.openDevTools();
 }
 
-// Interface for test result
-interface TestResult {
-  id: string;
-  status: 'SUCCESS' | 'FAILURE';
-  description: string;
-  playwrightCodes: string[];
-  playwrightAssertion?: string;
-}
-
 // Handle test execution
-async function runTest(testData: TestData): Promise<TestResult> {
+async function runTest(testData: TestData): Promise<ExecutionResult> {
   try {
     const result = await trpc.explore.mutate({
       scenario: testData.scenario,
