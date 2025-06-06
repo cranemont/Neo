@@ -15,14 +15,14 @@ program
 program
   .command('explore')
   .description('Explore a scenario using the LLM and MCP')
-  .option('--scenario, -s <scenario>', 'scenario to run')
-  .option('--url, -u <baseUrl>', 'base URL to start from')
+  .requiredOption('--scenario, -s <scenario>', 'scenario to run')
+  .requiredOption('--url, -u <baseUrl>', 'base URL to start from')
+  .requiredOption('--api-key, -k <apiKey>', 'API key for the LLM')
   .option('--input, -i [inputs...]', 'user inputs')
   .option('--domain-context, -d [domainContext...]', 'domain context')
   .option('--max-attempts -m [maxAttempts]', 'maximum number of attempts to reach the final state', '50')
-  .option('--api-key, -k <apiKey>', 'API key for the LLM')
   .option('--precondition, -p [precondition]', 'precondition file name to run before scenario')
-  .option('--browser <browser>', 'browser type (chromium, firefox, webkit)', 'chromium')
+  .option('--browser [browser]', 'browser type (chromium, firefox, webkit)', 'chromium')
   .option('--headless [Boolean]', 'run in headless mode', false)
   .option('--traces-dir [dir]', 'directory to save trace files')
   .option('--user-data-dir [dir]', 'browser user data directory')
@@ -61,4 +61,4 @@ program
     );
   });
 
-program.parse();
+void program.parseAsync();
