@@ -1,7 +1,7 @@
 import { publicProcedure, router } from './trpc.js';
 import { z } from 'zod';
 import { UserInput } from './codegen/UserInput.js';
-import { explore } from './explore.js';
+import { explore } from "./explorer.js";
 
 export const appRouter = router({
   explore: publicProcedure
