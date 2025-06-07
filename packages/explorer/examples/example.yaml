@@ -1,0 +1,70 @@
+# Sample YAML configuration
+# This file demonstrates how to configure a scenario exploration
+
+# GLOBAL CONFIGURATION
+apiKey: "your-api-key-here" # [REQUIRED]
+maxAttempts: 50  # [OPTIONAL] DEFAULT: 50
+
+# Global options that apply to all test contexts (can be overridden by individual test contexts)
+baseUrl: "https://example.com" # Global base URL for all scenarios
+inputs: # Global inputs available to all scenarios
+  - key: "globalUsername"
+    value: "global_user"
+    description: "Default username for all scenarios"
+  - key: "globalPassword"
+    value: "global_password"
+    description: "Default password for all scenarios"
+domainContext: # Global domain context for all scenarios
+  - "This is a web application for managing tasks"
+  - "The application requires login for most operations"
+
+browserOptions: # Options for the browser
+  browser: "chromium"  # chromium, firefox, or webkit
+  headless: false # Run in headless mode
+  tracesDir: "./traces" # Directory to save traces
+  userDataDir: "./user-data" # Directory for user data
+  outputDir: "./output" # Directory for output files
+  isolated: true # Run in isolated mode
+  saveTrace: false # Save trace files
+
+# TEST CONTEXTS
+testContexts:
+  # First Test Context - Uses global baseUrl and extends global inputs and domainContext
+  - scenario: "Login to the application and check the dashboard" # [REQUIRED]
+    # No baseUrl specified, will use the global baseUrl
+    precondition: "setup-test-data" # [OPTIONAL] Precondition test name to set up test data
+    inputs: # [OPTIONAL] These inputs will be merged with global inputs
+      - key: "username"
+        value: "testuser"
+        description: "Username for login (overrides global username)"
+      - key: "password"
+        value: "password123"
+        description: "Password for login (overrides global password)"
+    domainContext: # [OPTIONAL] These will be added to the global domain context
+      - "Users need to login before accessing the dashboard"
+
+  # Second Test Context - Overrides global baseUrl and extends global inputs and domainContext
+  - scenario: "Create a new task and verify it appears in the task list"
+    baseUrl: "https://example.com/tasks" # Overrides the global baseUrl
+    inputs: # These inputs will be merged with global inputs
+      - key: "taskName"
+        value: "Test Task"
+        description: "Name of the task to create"
+      - key: "taskDescription"
+        value: "This is a test task"
+        description: "Description of the task to create"
+      # Will also have access to globalUsername and globalPassword from global inputs
+    domainContext: # These will be added to the global domain context
+      - "After logging in, users can create new tasks"
+      - "New tasks should appear in the task list immediately"
+    # Test-specific browser options that override global settings
+    browserOptions:
+      headless: true
+      saveTrace: true
+
+  # Third Test Context - Uses global baseUrl, inputs, and domainContext without any overrides
+  - scenario: "View task list and verify sorting"
+    # No baseUrl specified, will use the global baseUrl
+    # No inputs specified, will use only the global inputs
+    # No domainContext specified, will use only the global domainContext
+    precondition: "" # Empty precondition
