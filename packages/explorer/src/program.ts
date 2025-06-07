@@ -6,9 +6,10 @@ import { exploreFromFile } from './fileExplorer.js';
 import logger from './logger.js';
 import fs from 'node:fs';
 import { Gemini } from './llm/google/Gemini.js';
-import yaml from "js-yaml";
-import { ExplorerConfig } from "./config.js";
-import { Evaluator } from "./evaluator/Evaluator.js";
+import yaml from 'js-yaml';
+import { ExplorerConfig } from './config.js';
+import { Evaluator } from './evaluator/Evaluator.js';
+import { Report } from './reporter/Report.js';
 
 program
   .command('record')
@@ -79,7 +80,6 @@ program
   .command('explore-file')
   .description('Explore a scenario using a YAML configuration file')
   .requiredOption('--file, -f <filePath>', 'path to the YAML configuration file')
-  .option('--evaluate, -e <evaluate>', 'whether to evaluate the result', true)
   .action(async (options) => {
     try {
       logger.info(`Exploring scenario from file: ${options.file}`);
@@ -87,39 +87,18 @@ program
       const fileContent = fs.readFileSync(`${process.cwd()}/../../${options.file}`, 'utf8');
       const config = ExplorerConfig.parse(yaml.load(fileContent));
 
-      const results = await exploreFromFile(config);
+      const executionResults = await exploreFromFile(config);
 
-      fs.writeFileSync(
-        './test_results.json',
-        JSON.stringify(
-          results.map((result) => result.toJSON()),
-          null,
-          2,
-        ),
-      );
+      // WARN: consider cost and API limits before running evaluation.
+      const llmClient = new Gemini(config.apiKey, 'gemini-2.5-pro-preview-06-05');
+      const evaluator = new Evaluator(llmClient);
 
-      if (options.evaluate) {
-        // WARN: consider cost and API limits before running evaluation.
-        const llmClient = new Gemini(config.apiKey, 'gemini-2.5-pro-preview-06-05');
-        const evaluator = new Evaluator(llmClient);
+      const evaluationResults = await evaluator.evaluate(executionResults, 5);
 
-        const evaluationResults = await evaluator.evaluate(results, 5);
+      fs.writeFileSync('./report/result.json', JSON.stringify(evaluationResults, null, 2));
 
-        fs.writeFileSync(
-          './evaluation_results.json',
-          JSON.stringify(
-            evaluationResults.map((result) => ({
-              id: result.id,
-              evaluationResult: result.evaluationResult,
-              executionResult: result.executionResult.toJSON(),
-            })),
-            null,
-            2,
-          ),
-        );
-      } else {
-        logger.info('Skipping evaluation as per user request.');
-      }
+      const report = new Report(evaluationResults);
+      report.exportWithTraces('./report', config.browserOptions.tracesDir);
     } catch (e) {
       logger.error(`Error during exploration from file: ${e instanceof Error ? e.message : 'Unknown error'}`);
     }
