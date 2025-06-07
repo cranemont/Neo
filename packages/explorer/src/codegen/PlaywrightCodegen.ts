@@ -11,7 +11,7 @@ import type { UserInput } from './UserInput.js';
 import type { MCPClient } from '../mcp/MCPClient.js';
 import { PlaywrightToolResultSchema } from '../mcp/playwright-mcp/ResponseSchema.js';
 import { ExecutionResult } from './ExecutionResult.js';
-import logger from "../logger.js";
+import logger from '../logger.js';
 
 export class PlaywrightCodegen {
   constructor(
@@ -19,7 +19,7 @@ export class PlaywrightCodegen {
     private readonly mcpClient: MCPClient,
   ) {}
 
-  async generate(context: ExecutionContext) {
+  async generate(context: ExecutionContext, maxAttempts: number): Promise<ExecutionResult> {
     const codegenPrompt = CODEGEN_PROMPT_V1(
       context.scenario,
       context.baseUrl,
@@ -33,7 +33,7 @@ export class PlaywrightCodegen {
     let attempts = 0;
     const isSuccess = false;
 
-    while (!isSuccess && attempts < 50) {
+    while (!isSuccess && attempts < maxAttempts) {
       attempts += 1;
       logger.info(`Attempt ${attempts} of ${context.scenario}`);
 

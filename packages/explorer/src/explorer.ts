@@ -26,7 +26,7 @@ export async function explore(
     await playwrightMcpClient.connect();
 
     const codegen = new PlaywrightCodegen(llmClient, playwrightMcpClient);
-    return await codegen.generate(context);
+    return await codegen.generate(context, maxAttempts);
   } catch (e) {
     logger.error('Error during exploration:', e);
     return null;
