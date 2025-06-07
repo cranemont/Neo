@@ -72,7 +72,6 @@ export class PlaywrightCodegen {
       }
 
       const lastSnapshot = this.extractLastSnapshotFromMessages(queryContext.messages.toReversed());
-      logger.info(`Last snapshot extracted: ${lastSnapshot?.slice(0, 50) || 'None'}`);
 
       const assertionResult = await this.createAssertion(queryContext.copy(), context.scenario);
       const maskedCode = this.extractCodeFromMessages(queryContext.messages);
@@ -99,14 +98,7 @@ export class PlaywrightCodegen {
       );
     } catch (e) {
       logger.error('Error during Playwright code generation:', e);
-      return ExecutionResult.ofFailure(
-        context.id,
-        context,
-        `Code generation failed: ${(e as Error).message}`,
-        [],
-        undefined,
-        undefined,
-      );
+      return ExecutionResult.ofError(context.id, context, `Code generation failed: ${(e as Error).message}`);
     }
   }
 
