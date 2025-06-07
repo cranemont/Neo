@@ -1,4 +1,5 @@
 import type { Client } from '@modelcontextprotocol/sdk/client/index.js';
+import type { Transport } from '@modelcontextprotocol/sdk/shared/transport.js';
 import { z } from 'zod';
 
 export const ToolSchema = z.object({
@@ -9,8 +10,8 @@ export const ToolSchema = z.object({
 
 export type ToolSchemaType = z.infer<typeof ToolSchema>;
 
-export class MCPClient {
-  constructor(private readonly client: Client) {}
+export abstract class MCPClient {
+  protected constructor(protected readonly client: Client) {}
 
   async listTools(): Promise<ToolSchemaType[]> {
     const tools = await this.client.listTools();
@@ -24,5 +25,13 @@ export class MCPClient {
     });
 
     return schema.parse(result);
+  }
+
+  async connect(transport: Transport): Promise<void> {
+    await this.client.connect(transport);
+  }
+
+  async close(): Promise<void> {
+    await this.client.close();
   }
 }
