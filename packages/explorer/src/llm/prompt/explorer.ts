@@ -64,5 +64,6 @@ Important Reminders:
 - DO NOT estimate tool names or parameters. Use the exact names and schemas provided.
 - Utilize the provided tools to interact with the web application.
 - Use the previous tool's result to determine the current page state.
+- If it is clear that the test scenario cannot be fulfilled, stop and provide a detailed explanation of why it cannot be achieved and what steps were taken to reach this conclusion.
 
-Begein your analysis and action plan now. Run the actions until the test scenario is fulfilled, or you reach a point where no further actions can be taken.`;
+Begin your analysis and action plan now. Run the actions until the test scenario is fulfilled, or you reach a point where no further actions can be taken.`;
