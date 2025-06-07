@@ -1,7 +1,8 @@
 import { program } from 'commander';
 import { UserInput } from './codegen/UserInput.js';
 import { record } from './record.js';
-import { explore } from './explore.js';
+import { explore } from './explorer.js';
+import { exploreFromFile } from './fileExplorer.js';
 import logger from "./logger.js";
 
 program
@@ -60,6 +61,15 @@ program
         saveTrace: options.saveTrace,
       },
     );
+  });
+
+program
+  .command('explore-file')
+  .description('Explore a scenario using a YAML configuration file')
+  .requiredOption('--file, -f <filePath>', 'path to the YAML configuration file')
+  .action(async (options) => {
+    logger.info(`Exploring scenario from file: ${options.file}`);
+    await exploreFromFile(options.file);
   });
 
 void program.parseAsync();
