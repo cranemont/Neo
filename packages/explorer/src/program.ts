@@ -3,7 +3,12 @@ import { UserInput } from './codegen/UserInput.js';
 import { record } from './record.js';
 import { explore } from './explorer.js';
 import { exploreFromFile } from './fileExplorer.js';
-import logger from "./logger.js";
+import logger from './logger.js';
+import fs from 'node:fs';
+import { Gemini } from './llm/google/Gemini.js';
+import yaml from "js-yaml";
+import { ExplorerConfig } from "./config.js";
+import { Evaluator } from "./evaluator/Evaluator.js";
 
 program
   .command('record')
@@ -43,7 +48,7 @@ program
       `Exploring scenario "${options.scenario}" at URL "${options.url}" with inputs: ${JSON.stringify(inputs)}`,
     );
 
-    await explore(
+    const result = await explore(
       Number(options.maxAttempts),
       options.scenario,
       options.url,
@@ -61,15 +66,63 @@ program
         saveTrace: options.saveTrace,
       },
     );
+
+    if (!result) {
+      logger.error('No result returned from the exploration.');
+      return;
+    }
+
+    fs.writeFileSync('./test_result.json', JSON.stringify(result.toJSON(), null, 2));
   });
 
 program
   .command('explore-file')
   .description('Explore a scenario using a YAML configuration file')
   .requiredOption('--file, -f <filePath>', 'path to the YAML configuration file')
+  .option('--evaluate, -e <evaluate>', 'whether to evaluate the result', true)
   .action(async (options) => {
-    logger.info(`Exploring scenario from file: ${options.file}`);
-    await exploreFromFile(options.file);
+    try {
+      logger.info(`Exploring scenario from file: ${options.file}`);
+
+      const fileContent = fs.readFileSync(`${process.cwd()}/../../${options.file}`, 'utf8');
+      const config = ExplorerConfig.parse(yaml.load(fileContent));
+
+      const results = await exploreFromFile(config);
+
+      fs.writeFileSync(
+        './test_results.json',
+        JSON.stringify(
+          results.map((result) => result.toJSON()),
+          null,
+          2,
+        ),
+      );
+
+      if (options.evaluate) {
+        // WARN: consider cost and API limits before running evaluation.
+        const llmClient = new Gemini(config.apiKey, 'gemini-2.5-pro-preview-06-05');
+        const evaluator = new Evaluator(llmClient);
+
+        const evaluationResults = await evaluator.evaluate(results, 5);
+
+        fs.writeFileSync(
+          './evaluation_results.json',
+          JSON.stringify(
+            evaluationResults.map((result) => ({
+              id: result.id,
+              evaluationResult: result.evaluationResult,
+              executionResult: result.executionResult.toJSON(),
+            })),
+            null,
+            2,
+          ),
+        );
+      } else {
+        logger.info('Skipping evaluation as per user request.');
+      }
+    } catch (e) {
+      logger.error(`Error during exploration from file: ${e instanceof Error ? e.message : 'Unknown error'}`);
+    }
   });
 
 void program.parseAsync();

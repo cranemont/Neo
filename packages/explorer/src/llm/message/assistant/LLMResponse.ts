@@ -82,6 +82,7 @@ export class LLMResponse {
         return JSON.parse(jsonMatch[1]);
       } catch (e) {
         logger.error('Failed to parse JSON from last message:', e);
+        logger.error(JSON.stringify(lastMessage));
         throw e;
       }
     }
