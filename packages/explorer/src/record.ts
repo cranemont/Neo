@@ -12,13 +12,6 @@ export async function record(options: {
       options.outputFile ??
       `./preconditions/recording-${new Date().toISOString().replace(/[:.]/g, '-')}.spec.${options.language === 'python' ? 'py' : options.language === 'java' ? 'java' : 'js'}`;
 
-    // console.log('Starting recorder...');
-    // console.log(`URL: ${options.url}`);
-    // console.log(`Output file: ${defaultOutputFile}`);
-    // console.log(`Language: ${options.language ?? 'javascript'}`);
-    // console.log(`Headless mode: ${options.headless ? 'enabled' : 'disabled'}`);
-    // console.log('\nPress Ctrl+C to stop recording\n');
-
     logger.info(
       `Starting recorder..
       URL: ${options.url}
