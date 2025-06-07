@@ -140,3 +140,4 @@ browser-data/
 **/*.*.js
 
 traces/
+report/
