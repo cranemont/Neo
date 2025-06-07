@@ -3,6 +3,7 @@ import type { ExecutionContext } from './ExecutionContext.js';
 export enum ExecutionStatus {
   SUCCESS = 'SUCCESS',
   FAILURE = 'FAILURE',
+  ERROR = 'ERROR',
 }
 
 export class ExecutionResult {
@@ -47,6 +48,25 @@ export class ExecutionResult {
       id,
       executionContext,
       ExecutionStatus.FAILURE,
+      description,
+      playwrightCodes,
+      playwrightAssertion,
+      lastSnapshot,
+    );
+  }
+
+  static ofError(
+    id: string,
+    executionContext: ExecutionContext,
+    description: string,
+    playwrightCodes: string[] = [],
+    playwrightAssertion?: string,
+    lastSnapshot?: string,
+  ): ExecutionResult {
+    return new ExecutionResult(
+      id,
+      executionContext,
+      ExecutionStatus.ERROR,
       description,
       playwrightCodes,
       playwrightAssertion,
