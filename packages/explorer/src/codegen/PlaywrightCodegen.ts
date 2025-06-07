@@ -53,7 +53,7 @@ export class PlaywrightCodegen {
             logger.info('Calling tool:', toolUse);
             const toolResult = await this.mcpClient.callTool(
               toolUse.name,
-              this.unmaskSensitiveData(toolUse.input, context.userInputs),
+              this.unmaskSensitiveData(toolUse.input as Record<string, unknown>, context.userInputs),
               PlaywrightToolResultSchema,
             );
 
@@ -158,21 +158,44 @@ export class PlaywrightCodegen {
     return undefined;
   }
 
-  private maskSensitiveData(source: unknown, inputs: UserInput[]) {
-    let stringifiedSource = JSON.stringify(source);
-    for (const input of inputs) {
-      stringifiedSource = input.mask(stringifiedSource);
-    }
-
-    return JSON.parse(stringifiedSource);
+  private maskSensitiveData<T>(source: T, inputs: UserInput[]): T {
+    return this.processSensitiveData(source, inputs, 'mask');
   }
 
-  private unmaskSensitiveData(source: unknown, inputs: UserInput[]) {
-    let stringifiedSource = JSON.stringify(source);
-    for (const input of inputs) {
-      stringifiedSource = input.unmask(stringifiedSource);
+  private unmaskSensitiveData<T>(source: T, inputs: UserInput[]): T {
+    return this.processSensitiveData(source, inputs, 'unmask');
+  }
+
+  private processSensitiveData(source: unknown, inputs: UserInput[], operation: 'mask' | 'unmask') {
+    if (source === null || source === undefined) {
+      return source;
     }
 
-    return JSON.parse(stringifiedSource);
+    if (typeof source === 'string') {
+      let result = source;
+      for (const input of inputs) {
+        result = operation === 'mask' ? input.mask(result) : input.unmask(result);
+      }
+      return result;
+    }
+
+    if (typeof source === 'number' || typeof source === 'boolean') {
+      return source;
+    }
+
+    if (Array.isArray(source)) {
+      return source.map((item) => this.processSensitiveData(item, inputs, operation));
+    }
+
+    if (typeof source === 'object') {
+      const result: Record<string, unknown> = {};
+      for (const [key, value] of Object.entries(source)) {
+        const processedKey = this.processSensitiveData(key, inputs, operation);
+        result[processedKey] = this.processSensitiveData(value, inputs, operation);
+      }
+      return result;
+    }
+
+    return source;
   }
 }
