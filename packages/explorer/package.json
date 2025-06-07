@@ -6,6 +6,7 @@
   "scripts": {
     "build": "tsc",
     "explore": "node dist/program.js explore",
+    "explore-file": "node dist/program.js explore-file",
     "record": "node dist/program.js record"
   },
   "exports": {
