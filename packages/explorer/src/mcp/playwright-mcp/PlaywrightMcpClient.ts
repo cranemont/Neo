@@ -16,7 +16,7 @@ export class PlaywrightMcpClient extends MCPClient {
     if (browserOptions.headless !== undefined) {
       this.args.push('--headless', browserOptions.headless.toString());
     }
-    if (browserOptions.tracesDir) {
+    if (browserOptions.tracesDir && browserOptions.saveTrace) {
       this.args.push('--traces-dir', `${browserOptions.tracesDir}/${contextId}`);
     }
     if (browserOptions.userDataDir) {

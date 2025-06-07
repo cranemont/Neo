@@ -43,10 +43,7 @@ export async function exploreFromFile(filePath: string) {
       }
     }
 
-    fs.writeFileSync(
-      `${process.cwd()}/../../exploration-results.yaml`,
-      yaml.dump(results, { lineWidth: -1, noRefs: true }),
-    );
+    fs.writeFileSync(`${process.cwd()}/../../exploration-results.yaml`, yaml.dump(results, { noRefs: true }));
 
     logger.info(`Exploration completed. Results: ${JSON.stringify(results)}`);
     return results;

@@ -4,6 +4,7 @@ export enum ExecutionStatus {
   SUCCESS = 'SUCCESS',
   FAILURE = 'FAILURE',
 }
+
 export class ExecutionResult {
   constructor(
     readonly id: string,
