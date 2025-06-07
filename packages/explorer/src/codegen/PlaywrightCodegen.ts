@@ -20,73 +20,94 @@ export class PlaywrightCodegen {
   ) {}
 
   async generate(context: ExecutionContext, maxAttempts: number): Promise<ExecutionResult> {
-    const codegenPrompt = CODEGEN_PROMPT_V1(
-      context.scenario,
-      context.baseUrl,
-      JSON.stringify(context.userInputs.map((input) => input.keyWithDescription)),
-      context.domainContext.join('\n'),
-    );
+    try {
+      const codegenPrompt = CODEGEN_PROMPT_V1(
+        context.scenario,
+        context.baseUrl,
+        JSON.stringify(context.userInputs.map((input) => input.keyWithDescription)),
+        context.domainContext.join('\n'),
+      );
 
-    const tools = await this.mcpClient.listTools();
-    const queryContext = new QueryContext([new TextUserMessage(codegenPrompt)], tools);
+      const tools = await this.mcpClient.listTools();
+      const queryContext = new QueryContext([new TextUserMessage(codegenPrompt)], tools);
 
-    let attempts = 0;
-    const isSuccess = false;
+      let attempts = 0;
+      const isSuccess = false;
 
-    while (!isSuccess && attempts < maxAttempts) {
-      attempts += 1;
-      logger.info(`Attempt ${attempts} of ${context.scenario}`);
+      while (!isSuccess && attempts < maxAttempts) {
+        attempts += 1;
+        logger.info(`Attempt ${attempts} of ${context.scenario}`);
 
-      const response = await this.llmClient.query(queryContext);
+        const response = await this.llmClient.query(queryContext);
 
-      if (response.isEndTurn()) {
-        logger.info('End of turn detected, stopping attempts.');
+        if (response.isEndTurn()) {
+          logger.info('End of turn detected, stopping attempts.');
 
-        break;
-      }
+          break;
+        }
 
-      if (response.isToolCalled()) {
-        const toolUse = response.toolUse;
+        if (response.isToolCalled()) {
+          const toolUse = response.toolUse;
 
-        try {
-          logger.info('Calling tool:', toolUse);
-          const toolResult = await this.mcpClient.callTool(
-            toolUse.name,
-            this.unmaskSensitiveData(toolUse.input, context.userInputs),
-            PlaywrightToolResultSchema,
-          );
+          try {
+            logger.info('Calling tool:', toolUse);
+            const toolResult = await this.mcpClient.callTool(
+              toolUse.name,
+              this.unmaskSensitiveData(toolUse.input, context.userInputs),
+              PlaywrightToolResultSchema,
+            );
 
-          toolResult.content = this.maskSensitiveData(toolResult.content, context.userInputs);
+            toolResult.content = this.maskSensitiveData(toolResult.content, context.userInputs);
 
-          this.removeSnapshotFromPastMessages(queryContext.messages);
+            this.removeSnapshotFromPastMessages(queryContext.messages);
 
-          queryContext.addUserMessage(new ToolResultUserMessage(ToolResult.success(toolUse, toolResult.content)));
-        } catch (error) {
-          logger.error('Error calling tool:', error);
-          queryContext.addUserMessage(
-            new ToolResultUserMessage(ToolResult.error(toolUse, JSON.stringify({ error: (error as Error).message }))),
-          );
+            queryContext.addUserMessage(new ToolResultUserMessage(ToolResult.success(toolUse, toolResult.content)));
+          } catch (error) {
+            logger.error('Error calling tool:', error);
+            queryContext.addUserMessage(
+              new ToolResultUserMessage(ToolResult.error(toolUse, JSON.stringify({ error: (error as Error).message }))),
+            );
+          }
         }
       }
 
-      // fs.writeFileSync(`gemini-${attempts}.json`, JSON.stringify(queryContext.messages, null, 2));
-    }
+      const lastSnapshot = this.extractLastSnapshotFromMessages(queryContext.messages.toReversed());
+      logger.info(`Last snapshot extracted: ${lastSnapshot?.slice(0, 50) || 'None'}`);
 
-    const assertionResult = await this.createAssertion(queryContext.copy(), context.scenario);
-    const maskedCode = this.extractCodeFromMessages(queryContext.messages);
-    const code = this.unmaskSensitiveData(maskedCode, context.userInputs);
+      const assertionResult = await this.createAssertion(queryContext.copy(), context.scenario);
+      const maskedCode = this.extractCodeFromMessages(queryContext.messages);
+      const code = this.unmaskSensitiveData(maskedCode, context.userInputs);
 
-    if (assertionResult.isFulfilled) {
-      return ExecutionResult.ofSuccess(
+      if (assertionResult.isFulfilled) {
+        return ExecutionResult.ofSuccess(
+          context.id,
+          context,
+          assertionResult.explanation,
+          code?.split('\n') || [],
+          assertionResult.assertion,
+          lastSnapshot,
+        );
+      }
+
+      return ExecutionResult.ofFailure(
         context.id,
         context,
         assertionResult.explanation,
-        code.split('\n'),
+        code?.split('\n') || [],
         assertionResult.assertion,
+        lastSnapshot,
+      );
+    } catch (e) {
+      logger.error('Error during Playwright code generation:', e);
+      return ExecutionResult.ofFailure(
+        context.id,
+        context,
+        `Code generation failed: ${(e as Error).message}`,
+        [],
+        undefined,
+        undefined,
       );
     }
-
-    return ExecutionResult.ofFailure(context.id, context, assertionResult.explanation, code, assertionResult.assertion);
   }
 
   private async createAssertion(context: QueryContext, scenario: string) {
@@ -122,6 +143,19 @@ export class PlaywrightCodegen {
       }
       return message;
     });
+  }
+
+  private extractLastSnapshotFromMessages(messages: ConversationMessage[]): string | undefined {
+    for (const message of messages) {
+      if (message instanceof BaseUserMessage && message.isOfType(UserMessageType.TOOL_RESULT)) {
+        const toolResult = message.toolResult as { content: { text: string }[] };
+        const snapshotMatch = toolResult.content[0].text.match(/- Page Snapshot\s*\n```yaml\n([\s\S]*?)\n```/);
+        if (snapshotMatch?.[1]) {
+          return snapshotMatch[1].trim();
+        }
+      }
+    }
+    return undefined;
   }
 
   private maskSensitiveData(source: unknown, inputs: UserInput[]) {

@@ -2,9 +2,9 @@ export class UserInput {
   static readonly WRAPPER = '__';
 
   constructor(
-    private readonly _key: string,
-    private readonly _value: string,
-    private readonly _description: string,
+    readonly key: string,
+    readonly value: string,
+    readonly description: string,
   ) {}
 
   static of(key: string, value: string, description: string) {
@@ -16,17 +16,17 @@ export class UserInput {
   }
 
   mask(text: string): string {
-    return text.replaceAll(this._value, this._key);
+    return text.replaceAll(this.value, this.key);
   }
 
   unmask(text: string) {
-    return text.replaceAll(this._key, this._value);
+    return text.replaceAll(this.key, this.value);
   }
 
   get keyWithDescription() {
     return {
-      key: this._key,
-      description: this._description,
+      key: this.key,
+      description: this.description,
     };
   }
 }

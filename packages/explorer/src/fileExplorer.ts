@@ -1,18 +1,11 @@
-import fs from 'node:fs';
-import yaml from 'js-yaml';
 import logger from './logger.js';
 import { UserInput } from './codegen/UserInput.js';
 import { explore } from './explorer.js';
 import type { ExecutionResult } from './codegen/ExecutionResult.js';
-import { ExplorerConfig } from './config.js';
+import type { ExploreConfigType } from "./config.js";
 
-export async function exploreFromFile(filePath: string) {
+export async function exploreFromFile(config: ExploreConfigType) {
   try {
-    const fileContent = fs.readFileSync(`${process.cwd()}/../../${filePath}`, 'utf8');
-    const rawConfig = yaml.load(fileContent);
-
-    const config = ExplorerConfig.parse(rawConfig);
-
     const results: ExecutionResult[] = [];
 
     for (const testContext of config.testContexts) {
@@ -42,8 +35,6 @@ export async function exploreFromFile(filePath: string) {
         logger.warn(`Exploration for scenario "${testContext.scenario}" failed or returned null`);
       }
     }
-
-    fs.writeFileSync(`${process.cwd()}/../../exploration-results.yaml`, yaml.dump(results, { noRefs: true }));
 
     logger.info(`Exploration completed. Results: ${JSON.stringify(results)}`);
     return results;
