@@ -77,6 +77,6 @@ After completing your analysis, provide your evaluation using the following resp
 ${responseSchema}
 </response_schema>
 
-Begin your response with a [scratchpad] section where you think through your evaluation step-by-step. 
-Then, provide your final assessment in the format specified by the JSON formatted response, ensuring that you include all required fields.
+Begin your response with a thinking section where you think through your evaluation step-by-step. 
+Then, provide your final assessment in the format specified by the JSON formatted response, wrapped in a json code block.
 `;
