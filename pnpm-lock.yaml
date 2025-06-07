@@ -20,6 +20,9 @@ importers:
       commander:
         specifier: ^13.1.0
         version: 13.1.0
+      js-yaml:
+        specifier: ^4.1.0
+        version: 4.1.0
       playwright:
         specifier: 1.53.0-alpha-2025-05-27
         version: 1.53.0-alpha-2025-05-27
@@ -58,9 +61,6 @@ importers:
       '@modelcontextprotocol/sdk':
         specifier: 1.12.0
         version: 1.12.0
-      js-yaml:
-        specifier: ^4.1.0
-        version: 4.1.0
       uuid:
         specifier: ^11.1.0
         version: 11.1.0
