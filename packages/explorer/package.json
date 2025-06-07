@@ -7,7 +7,9 @@
     "build": "tsc",
     "explore": "node dist/program.js explore",
     "explore-file": "node dist/program.js explore-file",
-    "record": "node dist/program.js record"
+    "record": "node dist/program.js record",
+    "report:test": "playwright test ./report --config=playwright.config.ts",
+    "report:show": "playwright show-report --port 9999"
   },
   "exports": {
     "./package.json": "./package.json",
@@ -20,7 +22,11 @@
     "@anthropic-ai/sdk": "0.52.0",
     "@google/genai": "^1.1.0",
     "@modelcontextprotocol/sdk": "1.12.0",
+    "adm-zip": "^0.5.16",
     "uuid": "^11.1.0",
     "zod": "^3.25.45"
+  },
+  "devDependencies": {
+    "@types/adm-zip": "^0.5.7"
   }
 }

@@ -11,7 +11,9 @@
     "start:explore": "pnpm build && pnpm --filter explorer explore",
     "start:explore-file": "pnpm build && pnpm --filter explorer explore-file",
     "start:record": "pnpm build && pnpm --filter explorer record",
-    "start:client": "pnpm build && pnpm --filter client-electron start"
+    "start:client": "pnpm build && pnpm --filter client-electron start",
+    "report:test": "pnpm --filter explorer report:test",
+    "report:show": "pnpm --filter explorer report:show"
   },
   "keywords": [],
   "author": "",
@@ -22,7 +24,6 @@
     "@trpc/server": "^11.3.1",
     "commander": "^13.1.0",
     "js-yaml": "^4.1.0",
-    "playwright": "1.53.0-alpha-2025-05-27",
     "winston": "^3.17.0"
   },
   "devDependencies": {
