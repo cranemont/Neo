@@ -13,6 +13,7 @@ export class ExecutionResult {
     readonly description: string,
     readonly playwrightCodes: string[],
     readonly playwrightAssertion?: string,
+    readonly lastSnapshot?: string,
   ) {}
 
   static ofSuccess(
@@ -21,6 +22,7 @@ export class ExecutionResult {
     description: string,
     playwrightCodes: string[],
     playwrightAssertion?: string,
+    lastSnapshot?: string,
   ): ExecutionResult {
     return new ExecutionResult(
       id,
@@ -29,6 +31,7 @@ export class ExecutionResult {
       description,
       playwrightCodes,
       playwrightAssertion,
+      lastSnapshot,
     );
   }
 
@@ -38,6 +41,7 @@ export class ExecutionResult {
     description: string,
     playwrightCodes: string[] = [],
     playwrightAssertion?: string,
+    lastSnapshot?: string,
   ): ExecutionResult {
     return new ExecutionResult(
       id,
@@ -46,6 +50,29 @@ export class ExecutionResult {
       description,
       playwrightCodes,
       playwrightAssertion,
+      lastSnapshot,
     );
+  }
+
+  toJSON(): Record<string, unknown> {
+    return {
+      id: this.id,
+      executionContext: {
+        scenario: this.executionContext.scenario,
+        baseUrl: this.executionContext.baseUrl,
+        userInputs: {
+          inputs: this.executionContext.userInputs.map((input) => ({
+            key: input.key,
+            value: input.value,
+            description: input.description,
+          })),
+        },
+        domainContext: this.executionContext.domainContext,
+      },
+      status: this.status,
+      description: this.description,
+      playwrightCodes: this.playwrightCodes,
+      playwrightAssertion: this.playwrightAssertion,
+    };
   }
 }
