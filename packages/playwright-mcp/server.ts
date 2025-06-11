@@ -2,6 +2,8 @@ import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js'
 import { type Connection, createConnection } from '@playwright/mcp';
 import { program } from "commander";
 import logger from './logger.js';
+import path from 'node:path';
+import fs from 'node:fs';
 
 // const preconditionsDir = path.resolve(process.cwd(), '../explorer/preconditions');
 //
@@ -79,6 +81,8 @@ interface ServerOptions {
   outputDir?: string;
   isolated: boolean;
   saveTrace: boolean;
+  storageState?: string;
+  originalCwd?: string;
 }
 
 // TODO: implement contextGetter to use preconditions
@@ -95,6 +99,24 @@ export class PlaywrightServer {
     logger.info(`Starting Playwright server with options: ${JSON.stringify(this.options)}`);
 
     try {
+      let resolvedStorageState = this.options.storageState;
+      if (resolvedStorageState && !path.isAbsolute(resolvedStorageState) && this.options.originalCwd) {
+        resolvedStorageState = path.resolve(this.options.originalCwd, resolvedStorageState);
+        logger.info(`Resolved storageState path: ${resolvedStorageState}`);
+      }
+
+      if (resolvedStorageState) {
+        try {
+          await fs.promises.access(resolvedStorageState, fs.constants.F_OK);
+          logger.info(`StorageState file found: ${resolvedStorageState}`);
+        } catch (error) {
+          logger.error(
+            `StorageState file not found: ${resolvedStorageState}. Using default context without stored state.`,
+          );
+          resolvedStorageState = undefined;
+        }
+      }
+
       this.connection = await createConnection({
         browser: {
           browserName: this.options.browserName,
@@ -102,6 +124,9 @@ export class PlaywrightServer {
           launchOptions: {
             headless: this.options.headless,
             tracesDir: this.options.tracesDir,
+          },
+          contextOptions: {
+            storageState: resolvedStorageState,
           },
           userDataDir: this.options.userDataDir,
         },
@@ -135,6 +160,8 @@ program
   .option('-o, --output-dir [dir]', 'directory to save downloaded files')
   .option('-i, --isolated [boolean]', 'enable browser isolation mode')
   .option('-s, --save-trace [boolean]', 'save trace files')
+  .option('--storage-state [file]', 'path to storage state file')
+  .option('--original-cwd [dir]', 'original working directory of the calling process')
   .action(async (options) => {
     const server = new PlaywrightServer({
       browserName: options.browser as 'chromium' | 'firefox' | 'webkit',
@@ -144,6 +171,8 @@ program
       outputDir: options.outputDir,
       isolated: options.isolated === 'true',
       saveTrace: options.saveTrace === 'true',
+      storageState: options.storageState,
+      originalCwd: options.originalCwd,
     });
 
     const cleanup = async () => {

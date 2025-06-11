@@ -26,6 +26,7 @@ browserOptions: # Options for the browser
   outputDir: "./output" # Directory for output files
   isolated: true # Run in isolated mode
   saveTrace: false # Save trace files
+  storageState: "./storage.json" # Path to storage state file
 
 # TEST CONTEXTS
 testContexts:

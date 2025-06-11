@@ -9,6 +9,7 @@ export const BrowserOptions = z
     outputDir: z.string().optional().describe('Directory to save downloaded files'),
     isolated: z.boolean().optional().describe('Enable browser isolation mode'),
     saveTrace: z.boolean().optional().describe('Save trace files'),
+    storageState: z.string().optional().describe('Path to storage state file'),
   })
   .describe('Playwright browser options');
 
@@ -44,6 +45,7 @@ export const ExplorerConfig = z.object({
     tracesDir: z.string().default('./traces'),
     userDataDir: z.string().default('./userData'),
     outputDir: z.string().default('./downloads'),
+    storageState: z.string().optional(),
   }),
   testContexts: z.array(TestContext).nonempty(),
 });

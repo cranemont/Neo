@@ -31,6 +31,11 @@ export class PlaywrightMcpClient extends MCPClient {
     if (browserOptions.saveTrace !== undefined) {
       this.args.push('--save-trace', browserOptions.saveTrace.toString());
     }
+    if (browserOptions.storageState) {
+      this.args.push('--storage-state', browserOptions.storageState);
+    }
+
+    this.args.push('--original-cwd', `${process.cwd()}/../../`);
   }
 
   override async connect() {

@@ -37,6 +37,7 @@ program
   .option('--output-dir [dir]', 'directory to save downloaded files')
   .option('--isolated [Boolean]', 'enable browser isolation mode', true)
   .option('--save-trace [Boolean]', 'save trace files', false)
+  .option('--storage-state [file]', 'path to storage state')
   .action(async (options) => {
     const inputs = options.input
       ? options.input.map((input) => {
@@ -65,6 +66,7 @@ program
         outputDir: options.outputDir,
         isolated: options.isolated,
         saveTrace: options.saveTrace,
+        storageState: options.storageState,
       },
     );
 
@@ -80,12 +82,17 @@ program
   .command('explore-file')
   .description('Explore a scenario using a YAML configuration file')
   .requiredOption('--file, -f <filePath>', 'path to the YAML configuration file')
+  .option('--storage-state [file]', 'path to storage state file for authentication (overrides YAML config)')
   .action(async (options) => {
     try {
       logger.info(`Exploring scenario from file: ${options.file}`);
 
       const fileContent = fs.readFileSync(`${process.cwd()}/../../${options.file}`, 'utf8');
       const config = ExplorerConfig.parse(yaml.load(fileContent));
+
+      if (options.storageState) {
+        config.browserOptions.storageState = options.storageState;
+      }
 
       const executionResults = await exploreFromFile(config);
 

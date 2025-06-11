@@ -31,6 +31,7 @@ export const appRouter = router({
             outputDir: z.string().optional(),
             isolated: z.boolean().default(true),
             saveTrace: z.boolean().default(false),
+            storageState: z.string().optional(),
           })
           .default({}),
       }),
