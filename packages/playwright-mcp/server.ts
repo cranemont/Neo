@@ -92,24 +92,31 @@ export class PlaywrightServer {
   }
 
   async start() {
-    this.connection = await createConnection({
-      browser: {
-        browserName: this.options.browserName,
-        isolated: this.options.isolated,
-        launchOptions: {
-          headless: this.options.headless,
-          tracesDir: this.options.tracesDir,
+    logger.info(`Starting Playwright server with options: ${JSON.stringify(this.options)}`);
+
+    try {
+      this.connection = await createConnection({
+        browser: {
+          browserName: this.options.browserName,
+          isolated: this.options.isolated,
+          launchOptions: {
+            headless: this.options.headless,
+            tracesDir: this.options.tracesDir,
+          },
+          userDataDir: this.options.userDataDir,
         },
-        userDataDir: this.options.userDataDir,
-      },
-      saveTrace: this.options.saveTrace,
-      outputDir: this.options.outputDir,
-    });
+        saveTrace: this.options.saveTrace,
+        outputDir: this.options.outputDir,
+      });
 
-    const transport = new StdioServerTransport();
-    await this.connection.server.connect(transport);
+      const transport = new StdioServerTransport();
+      await this.connection.server.connect(transport);
 
-    return this.connection;
+      return this.connection;
+    } catch (error) {
+      logger.error('Error starting Playwright server:', error);
+      throw error;
+    }
   }
 
   async stop() {

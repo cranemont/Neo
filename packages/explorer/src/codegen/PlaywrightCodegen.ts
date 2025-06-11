@@ -50,7 +50,7 @@ export class PlaywrightCodegen {
           const toolUse = response.toolUse;
 
           try {
-            logger.info('Calling tool:', toolUse);
+            logger.info(`Calling tool: ${JSON.stringify(toolUse)}`);
             const toolResult = await this.mcpClient.callTool(
               toolUse.name,
               this.unmaskSensitiveData(toolUse.input as Record<string, unknown>, context.userInputs),

@@ -38,7 +38,7 @@ export class GeminiAdapter implements MessageAdaptor<Content[], GenerateContentR
         );
       }
 
-      logger.info('Tool use detected:', response.functionCalls);
+      logger.info(`Tool use detected: ${JSON.stringify(response.functionCalls)}`);
 
       return LLMResponse.ofToolUse(id, messages, response);
     }
