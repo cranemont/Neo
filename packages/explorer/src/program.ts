@@ -30,6 +30,8 @@ program
   .option('--domain-context, -d [domainContext...]', 'domain context')
   .option('--max-attempts -m [maxAttempts]', 'maximum number of attempts to reach the final state', '50')
   .option('--precondition, -p [precondition]', 'precondition file name to run before scenario')
+  .option('--expectation, -e [expectation]', 'expected outcome or result of the test scenario')
+  .option('--steps [steps...]', 'detailed test steps (format: "action:description:expectedResult")')
   .option('--browser [browser]', 'browser type (chromium, firefox, webkit)', 'chromium')
   .option('--headless [Boolean]', 'run in headless mode', false)
   .option('--traces-dir [dir]', 'directory to save trace files')
@@ -44,6 +46,10 @@ program
           const [key, value, description] = input.split(',');
           return UserInput.of(key, value, description);
         })
+      : [];
+
+    const steps = options.steps
+      ? options.steps
       : [];
 
     logger.info(
@@ -68,6 +74,8 @@ program
         saveTrace: options.saveTrace,
         storageState: options.storageState,
       },
+      options.expectation,
+      steps,
     );
 
     if (!result) {

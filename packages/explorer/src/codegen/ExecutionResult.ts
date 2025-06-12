@@ -88,6 +88,8 @@ export class ExecutionResult {
           })),
         },
         domainContext: this.executionContext.domainContext,
+        expectation: this.executionContext.expectation,
+        steps: this.executionContext.steps,
       },
       status: this.status,
       description: this.description,

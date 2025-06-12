@@ -22,6 +22,8 @@ export const appRouter = router({
         apiKey: z.string(),
         domainContext: z.array(z.string()).default([]),
         precondition: z.string().optional(),
+        expectation: z.string().optional(),
+        steps: z.array(z.string()).default([]),
         browserOptions: z
           .object({
             browser: z.enum(['chromium', 'firefox', 'webkit']).default('chromium'),
@@ -59,6 +61,8 @@ export const appRouter = router({
         input.domainContext,
         input.precondition ?? '',
         input.browserOptions,
+        input.expectation,
+        input.steps,
       );
       return result;
     }),

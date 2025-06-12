@@ -8,10 +8,10 @@ export default defineConfig({
   use: {
     headless: false,
     trace: 'on-first-retry',
-    viewport: { width: 1280, height: 720 },
+    viewport: { width: 1920, height: 1080 },
     video: 'on',
     launchOptions: {
-      slowMo: 200,
+      slowMo: 500,
     },
   },
 

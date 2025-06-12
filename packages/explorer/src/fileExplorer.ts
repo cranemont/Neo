@@ -27,6 +27,8 @@ export async function exploreFromFile(config: ExploreConfigType) {
           ...config.browserOptions,
           ...testContext.browserOptions,
         },
+        testContext.expectation,
+        testContext.steps,
       );
 
       if (result !== null) {
