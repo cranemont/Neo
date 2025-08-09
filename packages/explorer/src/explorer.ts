@@ -15,12 +15,14 @@ export async function explore(
   domainContext: string[],
   precondition: string,
   browserOptions: BrowserOptionsType,
+  expectation?: string,
+  steps?: string[],
 ) {
   let playwrightMcpClient: PlaywrightMcpClient;
 
   try {
     const llmClient = new Gemini(apiKey);
-    const context = ExecutionContext.init(scenario, baseUrl, inputs, domainContext);
+    const context = ExecutionContext.init(scenario, baseUrl, inputs, domainContext, expectation, steps);
 
     playwrightMcpClient = new PlaywrightMcpClient(browserOptions, context.id);
     await playwrightMcpClient.connect();

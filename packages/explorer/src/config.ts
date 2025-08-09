@@ -26,6 +26,8 @@ export const TestContext = z
     inputs: z.array(UserInput).default([]).describe('User inputs for the scenario'),
     domainContext: z.array(z.string()).default([]).describe('Domain context for the scenario'),
     precondition: z.string().default('').describe('Precondition file name to run before scenario'),
+    expectation: z.string().optional().describe('Expected outcome or result of the test scenario'),
+    steps: z.array(z.string()).default([]).describe('Detailed test steps to follow'),
     browserOptions: BrowserOptions.optional(),
   })
   .describe('Test context configuration for the scenario');

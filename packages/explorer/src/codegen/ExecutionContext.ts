@@ -8,6 +8,8 @@ export class ExecutionContext {
     readonly baseUrl: string,
     readonly userInputs: UserInput[],
     readonly domainContext: string[] = [],
+    readonly expectation?: string,
+    readonly steps: string[] = [],
   ) {}
 
   static init(
@@ -15,8 +17,10 @@ export class ExecutionContext {
     baseUrl: string,
     userInputs: UserInput[] = [],
     domainContext: string[] = [],
+    expectation?: string,
+    steps: string[] = [],
     id: string = v4(),
   ): ExecutionContext {
-    return new ExecutionContext(id, scenario, baseUrl, userInputs, domainContext);
+    return new ExecutionContext(id, scenario, baseUrl, userInputs, domainContext, expectation, steps);
   }
 }

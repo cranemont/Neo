@@ -26,6 +26,8 @@ export class PlaywrightCodegen {
         context.baseUrl,
         JSON.stringify(context.userInputs.map((input) => input.keyWithDescription)),
         context.domainContext.join('\n'),
+        context.expectation,
+        context.steps,
       );
 
       const tools = await this.mcpClient.listTools();
